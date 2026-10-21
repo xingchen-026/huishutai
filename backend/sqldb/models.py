@@ -1,9 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.hashers import make_password, check_password
 
 # Create your models here.
-class User(AbstractUser):
+class User(models.Model):
     """用户表"""
     username = models.CharField(
         max_length=50, unique=True, verbose_name='用户名'
