@@ -1,7 +1,7 @@
 # deploy/docker-compose.yml
 services:
   db:
-    image: postgres:16-alpine
+    image: postgres:16
     container_name: huishutai-db
     restart: always
     environment:
@@ -18,7 +18,35 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
+    
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: huishutai-backend
+    restart: always
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-huishutai}
+      - POSTGRES_USER=${POSTGRES_USER:-huishutai}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy # 等数据库健康后再启动
+    # 注意：首次启动先跑 migrate，可以覆盖 command
+    command: >
+      sh -c "python manage.py migrate &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: huishutai-frontend
+    restart: always
+    ports:
+      - "80:80" # 映射宿主机 80 端口
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
