@@ -1,0 +1,12 @@
+from dataclasses import dataclass, asdict
+from typing import Any, Optional
+from sqldb.enums import DBStatus
+
+@dataclass
+class DBResult:
+    code: DBStatus
+    message: str
+    data: Optional[Any] = None
+
+    def to_dict(self):
+        return asdict(self)
