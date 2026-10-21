@@ -38,10 +38,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
     "api",
     "user",
     "sqldb",
-    "vectordb"
+    "vectordb",
 ]
 
 MIDDLEWARE = [
@@ -83,7 +84,7 @@ DATABASES = {
         "NAME": os.environ.get("POSTGRES_DB", "huishutai"),
         "USER": os.environ.get("POSTGRES_USER", "huishutai"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
-        "HOST": "127.0.0.1",
+        "HOST": "db",
         "PORT": "5432",
     }
 }
