@@ -1,0 +1,28 @@
+# 创建并写入 .gitignore 内容
+@"
+# --- Python / Django ---
+__pycache__/
+*.py[cod]
+*.so
+.env
+.venv/
+venv/
+db.sqlite3
+/media/
+/staticfiles/
+
+# --- Node / Vue ---
+node_modules/
+/dist/
+.vite/
+*.local
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+*.log
+"@ | Out-File -FilePath .gitignore -Encoding utf8
