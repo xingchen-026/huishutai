@@ -79,17 +79,17 @@ WSGI_APPLICATION = "config.wsgi.application"
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
 DATABASES = {
+    # 本地开发直连本机 PostgreSQL（原 Docker 环境变量方式已改为本地硬编码）
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_DB", "huishutai"),
-        "USER": os.environ.get("POSTGRES_USER", "huishutai"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
-        "HOST": "db",
+        "NAME": "huishutai",
+        "USER": "huishutai",
+        "PASSWORD": 123456,
+        "HOST": "127.0.0.1",
         "PORT": "5432",
     }
 }
 
-AUTH_USER_MODEL = 'app.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
@@ -135,4 +135,10 @@ MAILERS = {
     "default": {
         "BACKEND": "django.core.mail.backends.console.EmailBackend",
     },
+}
+
+# DRF 全局配置：暂不做统一认证/权限，登录态由前端自行管理（localStorage 存 user_id）
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [],
 }
