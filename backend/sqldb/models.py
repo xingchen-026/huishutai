@@ -1,7 +1,11 @@
-from django.db import models
-from django.contrib.auth.hashers import make_password, check_password
+"""sqldb 表结构定义。
 
-# Create your models here.
+本文件只描述数据库表结构：字段、约束、关联、表名、Meta。
+密码哈希、参数校验、业务流程等逻辑一律不写在这里，由上层应用负责。
+"""
+
+from django.db import models
+
 class User(models.Model):
     """用户表"""
     username = models.CharField(
@@ -15,17 +19,6 @@ class User(models.Model):
         db_table = 'user'          # 指定数据库表名
         verbose_name = '用户'
         verbose_name_plural = verbose_name
-
-    # 密码加密写入
-    def set_password(self, raw_password):
-        self.password = make_password(raw_password)
-
-    # 密码校验
-    def check_password(self, raw_password):
-        return check_password(raw_password, self.password)
-
-    def __str__(self):
-        return self.username
     
     
 class UserInfo(models.Model):
@@ -56,6 +49,4 @@ class UserInfo(models.Model):
         db_table = 'user_info'
         verbose_name = '用户信息'
         verbose_name_plural = verbose_name
-
-    def __str__(self):
-        return f'{self.user.username} 的信息'
+        
