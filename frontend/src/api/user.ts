@@ -2,7 +2,7 @@ import request from "./request"
 
 // 后端统一返回结构：{ code, message, data }
 export interface ApiResult<T = unknown> {
-    code: string
+    code: number
     message: string
     data: T
 }

@@ -55,7 +55,7 @@ def _fail(
         status=status,
     )
 
-def _username_err(username: str) -> str | None:
+def _username_error(username: str) -> str | None:
     if not username:
         return "用户名称不能为空"
     if not USERNAME_RE.fullmatch(username):
@@ -105,7 +105,7 @@ def _get_or_create_info(user):
 
 
 # ==================== 注册 ====================
-@api_view(["PPST"])
+@api_view(["POST"])
 @authentication_classes([])
 @permission_classes([AllowAny])
 def user_register(request):

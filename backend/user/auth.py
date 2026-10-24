@@ -24,7 +24,7 @@ def issue_token(user_id: int) -> str:
     return signing.dumps({"uid": user_id}, salt=TOKEN_SALT)
 
 
-def pares_token(token: str) -> int:
+def parse_token(token: str) -> int:
     """校验签名和有效期，返回 user_id。"""
     try:
         payload = signing.loads(token, salt=TOKEN_SALT, max_age=TOKEN_MAX_AGE)

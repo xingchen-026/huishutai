@@ -27,7 +27,7 @@ async function onSubmit() {
   loading.value = true
   try {
     const res = await login(username.value.trim(), password.value)
-    if (res.code !== '0') {
+    if (res.code !== 0) {
       errorMsg.value = res.message || '登录失败'
       return
     }

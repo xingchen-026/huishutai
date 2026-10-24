@@ -44,7 +44,7 @@ async function loadProfile() {
   pageError.value = ''
   try {
     const res = await getProfile()
-    if (res.code !== '0') {
+    if (res.code !== 0) {
       pageError.value = res.message || '加载用户资料失败'
       return
     }
@@ -93,7 +93,7 @@ async function saveProfile() {
   saving.value = true
   try {
     const res = await updateProfile({ email, phone, gender: form.gender })
-    if (res.code !== '0') {
+    if (res.code !== 0) {
       profileError.value = res.message || '保存失败'
       return
     }
@@ -127,7 +127,7 @@ async function onChangePassword() {
   pwdLoading.value = true
   try {
     const res = await changePassword({ ...pwd })
-    if (res.code !== '0') {
+    if (res.code !== 0) {
       pwdError.value = res.message || '修改失败'
       return
     }
