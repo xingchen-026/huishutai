@@ -137,8 +137,14 @@ MAILERS = {
     },
 }
 
-# DRF 全局配置：暂不做统一认证/权限，登录态由前端自行管理（localStorage 存 user_id）
+# DRF 全局配置：
+# 认证用签名 Token（Authorization: Bearer <token>），默认所有接口都要求登录；
+# 登录/注册/查重等公开接口在 view 上用 @permission_classes([AllowAny]) 单独放开。
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [],
-    'DEFAULT_PERMISSION_CLASSES': [],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "user.auth.SignedTokenAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "user.auth.IsLoginUser",
+    ],
 }
