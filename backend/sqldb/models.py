@@ -19,6 +19,17 @@ class User(models.Model):
         db_table = 'user'          # 指定数据库表名
         verbose_name = '用户'
         verbose_name_plural = verbose_name
+
+    @property
+    def is_authenticated(self) -> bool:
+        return True
+
+    @property
+    def is_anonymous(self) -> bool:
+        return False
+
+    def __str__(self) -> str:
+        return self.username
     
     
 class UserInfo(models.Model):

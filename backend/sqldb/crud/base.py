@@ -5,7 +5,7 @@
 所有操作统一返回 DBResult，说明本次操作结果。
 """
 
-from __future__ import annontations
+from __future__ import annotations
 
 import functools
 import logging
@@ -34,10 +34,10 @@ def db_error_handler(func: Callable[P, DBResult]) -> Callable[P, DBResult]:
             return func(*args, **kwargs)
         except IntegrityError:
             logger.warning("数据库完整性约束冲突：%s", func.__qualname__,exc_info=True)
-            return DBResult(DBResult.DUPLICATE_ERR, "数据已存在或违反唯一性/外键约束")
+            return DBResult(DBStatus.DUPLICATE_ERR, "数据已存在或违反唯一性/外键约束")
         except DatabaseError:
             logger.warning("数据库操作失败：%s", func.__qualname__)
-            return DBResult(DBResult.UNKNOWN_ERR, "数据库操作失败")
+            return DBResult(DBStatus.UNKNOWN_ERR, "数据库操作失败")
     return wrapper
 
 
