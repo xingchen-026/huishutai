@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     "user",
     "sqldb",
     "vectordb",
+    "RAG",
+    "LLMapi",
 ]
 
 MIDDLEWARE = [
@@ -79,14 +81,13 @@ WSGI_APPLICATION = "config.wsgi.application"
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
 DATABASES = {
-    # 本地开发直连本机 PostgreSQL（原 Docker 环境变量方式已改为本地硬编码）
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "huishutai",
-        "USER": "huishutai",
-        "PASSWORD": 123456,
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
+        "NAME": os.environ.get("POSTGRES_DB", "huishutai"),
+        "USER": os.environ.get("POSTGRES_USER", "huishutai"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", ""),   # 用字符串
+        "HOST": os.environ.get("POSTGRES_HOST", "127.0.0.1"),  # compose 传 db
+        "PORT": os.environ.get("POSTGRES_PORT", "5432"),
     }
 }
 
@@ -148,3 +149,14 @@ REST_FRAMEWORK = {
         "user.auth.IsLoginUser",
     ],
 }
+# ==================== 向量数据库（Milvus） ====================
+# 宿主机直跑后端时用 127.0.0.1；容器内会被 compose 覆盖成 http://milvus:19530
+MILVUS_URI = os.environ.get("MILVUS_URI", "http://127.0.0.1:19530")
+MILVUS_TOKEN = os.environ.get("MILVUS_TOKEN", "")          # 开启鉴权时填 root:Milvus
+MILVUS_DB_NAME = os.environ.get("MILVUS_DB_NAME", "default")
+MILVUS_TIMEOUT = float(os.environ.get("MILVUS_TIMEOUT", "10"))
+
+# 知识库集合结构（维度必须与 LLMapi 使用的 embedding 模型输出维度一致）
+MILVUS_KNOWLEDGE_COLLECTION = os.environ.get("MILVUS_KNOWLEDGE_COLLECTION", "knowledge_chunks")
+MILVUS_KNOWLEDGE_DIM = int(os.environ.get("MILVUS_KNOWLEDGE_DIM", "1024"))
+MILVUS_KNOWLEDGE_METRIC_TYPE = os.environ.get("MILVUS_KNOWLEDGE_METRIC_TYPE", "COSINE")
