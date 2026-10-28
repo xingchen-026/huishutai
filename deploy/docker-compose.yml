@@ -101,7 +101,28 @@ services:
       milvus:
         condition: service_healthy
   
-  # ======== 后端 =========
+    # ==================== 业务文件对象存储（独立 MinIO，与 Milvus 的 minio 隔离） ====================
+  minio-files:
+    image: minio/minio:RELEASE.2024-12-18T13-15-44Z
+    container_name: huishutai-minio-files
+    restart: always
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-huishutai_files}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-ChangeMe_Strong_123}
+    volumes:
+      - minio_files_data:/data
+    command: minio server /data --console-address ":9001"
+    ports:
+      # 9004 给浏览器访问签名 URL，9005 是管理控制台
+      - "127.0.0.1:${MINIO_FILES_API_PORT:-9004}:9000"
+      - "127.0.0.1:${MINIO_FILES_CONSOLE_PORT:-9005}:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+  
+    # ======== 后端 =========
   backend:
     build:
       context: ../backend
@@ -115,12 +136,25 @@ services:
         POSTGRES_HOST: db
         MILVUS_URI: http://milvus:19530
         DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,backend
+        # ===== 文件对象存储（内部地址给后端，public 地址给签名 URL） =====
+        MINIO_ENDPOINT: minio-files:9000
+        MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-127.0.0.1:9004}
+        MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-huishutai_files}
+        MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-ChangeMe_Strong_123}
+        MINIO_SECURE: "false"
+        MINIO_PUBLIC_SECURE: "false"
+        MINIO_BUCKET: ${MINIO_BUCKET:-huishutai-files}
+        MINIO_PRESIGN_EXPIRY: ${MINIO_PRESIGN_EXPIRY:-3600}
+        MAX_UPLOAD_SIZE: ${MAX_UPLOAD_SIZE:-52428800}
     depends_on:
       db:
-        condition: service_healthy # 等数据库健康后再启动
-    # 注意：首次启动先跑 migrate，可以覆盖 command
+        condition: service_healthy
+      minio-files:
+        condition: service_healthy
+    # 首次启动先跑 migrate，再检查/初始化 bucket
     command: >
       sh -c "python manage.py migrate &&
+             python manage.py init_storage &&
              gunicorn config.wsgi:application --bind 0.0.0.0:8000"
 
   # ======== 前端 =========
@@ -139,4 +173,5 @@ volumes:
   postgres_data:
   etcd_data:
   minio_data:
+  minio_files_data:
   milvus_data:

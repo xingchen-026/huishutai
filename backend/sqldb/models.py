@@ -60,4 +60,41 @@ class UserInfo(models.Model):
         db_table = 'user_info'
         verbose_name = '用户信息'
         verbose_name_plural = verbose_name
-        
+
+
+class UploadedFile(models.Model):
+    """上传文件元数据表。
+
+    文件本体在 MinIO 对象存储中，本表记录 bucket + object_key、
+    内容哈希、归属用户等元数据；不存文件内容，也不存服务器文件系统路径。
+    """
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="uploaded_files",
+        verbose_name="归属用户",
+    )
+    original_name = models.CharField(max_length=255, verbose_name="原始文件名")
+    bucket = models.CharField(max_length=63, verbose_name="对象存储 bucket")
+    object_key = models.CharField(max_length=512, verbose_name="对象键（存储路径）")
+    file_hash = models.CharField(max_length=64, db_index=True, verbose_name="文件 SHA-256")
+    file_size = models.BigIntegerField(verbose_name="文件大小（字节）")
+    content_type = models.CharField(
+        max_length=128, blank=True, default="", verbose_name="MIME 类型"
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="上传时间")
+
+    class Meta:
+        db_table = "uploaded_file"
+        verbose_name = "上传文件"
+        verbose_name_plural = verbose_name
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["user", "file_hash"], name="uploaded_user_hash_idx"),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["bucket", "object_key"], name="uniq_uploaded_object"
+            ),
+        ]

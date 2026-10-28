@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "vectordb",
     "RAG",
     "LLMapi",
+    "files",
 ]
 
 MIDDLEWARE = [
@@ -160,3 +161,34 @@ MILVUS_TIMEOUT = float(os.environ.get("MILVUS_TIMEOUT", "10"))
 MILVUS_KNOWLEDGE_COLLECTION = os.environ.get("MILVUS_KNOWLEDGE_COLLECTION", "knowledge_chunks")
 MILVUS_KNOWLEDGE_DIM = int(os.environ.get("MILVUS_KNOWLEDGE_DIM", "1024"))
 MILVUS_KNOWLEDGE_METRIC_TYPE = os.environ.get("MILVUS_KNOWLEDGE_METRIC_TYPE", "COSINE")
+
+# ==================== 文件对象存储（独立 MinIO） ====================
+# 内网地址：后端容器访问 MinIO 用；本地直跑后端时是 127.0.0.1:9004
+MINIO_ENDPOINT = os.environ.get("MINIO_ENDPOINT", "127.0.0.1:9004")
+
+# 外网地址：生成签名 URL 用，必须与浏览器实际访问的 host:port 一致
+MINIO_PUBLIC_ENDPOINT = os.environ.get("MINIO_PUBLIC_ENDPOINT", "127.0.0.1:9004")
+
+MINIO_ACCESS_KEY = os.environ.get("MINIO_ACCESS_KEY", "")
+MINIO_SECRET_KEY = os.environ.get("MINIO_SECRET_KEY", "")
+
+# endpoint 不带协议时用这两个开关；带 http:// / https:// 时以协议为准
+MINIO_SECURE = os.environ.get("MINIO_SECURE", "false").lower() in ("1", "true", "yes", "on")
+MINIO_PUBLIC_SECURE = os.environ.get("MINIO_PUBLIC_SECURE", "false").lower() in ("1", "true", "yes", "on")
+
+MINIO_BUCKET = os.environ.get("MINIO_BUCKET", "huishutai-files")
+MINIO_PRESIGN_EXPIRY = int(os.environ.get("MINIO_PRESIGN_EXPIRY", "3600"))  # 秒，最长 7 天
+
+# 单文件大小上限（字节，默认 50MB）
+MAX_UPLOAD_SIZE = int(os.environ.get("MAX_UPLOAD_SIZE", str(50 * 1024 * 1024)))
+
+# 允许上传的扩展名（小写，含点）
+ALLOWED_UPLOAD_EXTENSIONS = {
+    ".pdf", ".txt", ".md", ".doc", ".docx",
+    ".xls", ".xlsx", ".ppt", ".pptx",
+    ".png", ".jpg", ".jpeg", ".gif", ".webp",
+    ".zip",
+}
+
+# 超过 5MB 的请求体落临时文件，避免占进程内存（Django 默认 2.5MB）
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024

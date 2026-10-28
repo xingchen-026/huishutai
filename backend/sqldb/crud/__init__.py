@@ -11,18 +11,22 @@
 """
 
 from sqldb.crud.base import BaseCRUD, db_error_handler
+from sqldb.crud.file import UploadedFileCRUD
 from sqldb.crud.user import UserCRUD
 from sqldb.crud.user_info import UserInfoCRUD
 
 # 无状态对象，进程内复用；测试时也可直接 UserCRUD() 新建。
 user_crud = UserCRUD()
 user_info_crud = UserInfoCRUD()
+file_crud = UploadedFileCRUD()
 
 __all__ = [
     "BaseCRUD",
     "db_error_handler",
     "UserCRUD",
     "UserInfoCRUD",
+    "UploadedFileCRUD",
     "user_crud",
     "user_info_crud",
+    "file_crud",
 ]
