@@ -1,6 +1,6 @@
 export interface AuthUser {
-    user_id: number
-    username: string
+  user_id: number
+  username: string
 }
 
 const TOKEN_KEY = 'access_token'

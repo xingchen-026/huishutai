@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("sqldb", "0001_initial"),
     ]
@@ -37,9 +36,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "file_hash",
-                    models.CharField(
-                        db_index=True, max_length=64, verbose_name="文件 SHA-256"
-                    ),
+                    models.CharField(db_index=True, max_length=64, verbose_name="文件 SHA-256"),
                 ),
                 ("file_size", models.BigIntegerField(verbose_name="文件大小（字节）")),
                 (
@@ -68,9 +65,7 @@ class Migration(migrations.Migration):
                 "db_table": "uploaded_file",
                 "ordering": ["-created_at"],
                 "indexes": [
-                    models.Index(
-                        fields=["user", "file_hash"], name="uploaded_user_hash_idx"
-                    )
+                    models.Index(fields=["user", "file_hash"], name="uploaded_user_hash_idx")
                 ],
                 "constraints": [
                     models.UniqueConstraint(

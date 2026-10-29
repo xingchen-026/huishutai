@@ -172,9 +172,7 @@ onMounted(loadProfile)
         <section class="card">
           <div class="card-head">
             <h2>个人资料</h2>
-            <button v-if="!editing" class="btn btn-secondary" @click="startEdit">
-              编辑资料
-            </button>
+            <button v-if="!editing" class="btn btn-secondary" @click="startEdit">编辑资料</button>
           </div>
 
           <dl v-if="!editing" class="profile-list">
@@ -209,11 +207,7 @@ onMounted(loadProfile)
 
             <div class="form-item">
               <label for="profile-phone">手机号</label>
-              <input
-                id="profile-phone"
-                v-model="form.phone"
-                placeholder="选填，11 位手机号"
-              />
+              <input id="profile-phone" v-model="form.phone" placeholder="选填，11 位手机号" />
             </div>
 
             <div class="form-item">
@@ -231,9 +225,7 @@ onMounted(loadProfile)
               <button class="btn" type="submit" :disabled="saving">
                 {{ saving ? '保存中...' : '保存' }}
               </button>
-              <button class="btn btn-secondary" type="button" @click="cancelEdit">
-                取消
-              </button>
+              <button class="btn btn-secondary" type="button" @click="cancelEdit">取消</button>
             </div>
           </form>
 

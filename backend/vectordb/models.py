@@ -1,4 +1,3 @@
-
 """vectordb 不使用 Django ORM 建模。
 
 向量集合的结构定义在 vectordb/schemas.py，

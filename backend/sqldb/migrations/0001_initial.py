@@ -5,39 +5,63 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='User',
+            name="User",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('username', models.CharField(max_length=50, unique=True, verbose_name='用户名')),
-                ('password', models.CharField(max_length=128, verbose_name='密码')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("username", models.CharField(max_length=50, unique=True, verbose_name="用户名")),
+                ("password", models.CharField(max_length=128, verbose_name="密码")),
             ],
             options={
-                'verbose_name': '用户',
-                'verbose_name_plural': '用户',
-                'db_table': 'user',
+                "verbose_name": "用户",
+                "verbose_name_plural": "用户",
+                "db_table": "user",
             },
         ),
         migrations.CreateModel(
-            name='UserInfo',
+            name="UserInfo",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('email', models.EmailField(max_length=100, verbose_name='邮箱')),
-                ('phone', models.CharField(max_length=20, verbose_name='手机号')),
-                ('gender', models.CharField(choices=[('male', '男'), ('female', '女'), ('unknown', '未知')], default='unknown', max_length=10, verbose_name='性别')),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='info', to='sqldb.user', verbose_name='用户')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("email", models.EmailField(max_length=100, verbose_name="邮箱")),
+                ("phone", models.CharField(max_length=20, verbose_name="手机号")),
+                (
+                    "gender",
+                    models.CharField(
+                        choices=[("male", "男"), ("female", "女"), ("unknown", "未知")],
+                        default="unknown",
+                        max_length=10,
+                        verbose_name="性别",
+                    ),
+                ),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="info",
+                        to="sqldb.user",
+                        verbose_name="用户",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '用户信息',
-                'verbose_name_plural': '用户信息',
-                'db_table': 'user_info',
+                "verbose_name": "用户信息",
+                "verbose_name_plural": "用户信息",
+                "db_table": "user_info",
             },
         ),
     ]

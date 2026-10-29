@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("sqldb", "0002_uploadedfile"),
     ]
@@ -35,9 +34,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "api_key_encrypted",
-                    models.TextField(
-                        blank=True, default="", verbose_name="加密后的 API Key"
-                    ),
+                    models.TextField(blank=True, default="", verbose_name="加密后的 API Key"),
                 ),
                 (
                     "api_key_masked",
@@ -51,9 +48,7 @@ class Migration(migrations.Migration):
                 ("enabled", models.BooleanField(default=True, verbose_name="是否启用")),
                 (
                     "last_synced_at",
-                    models.DateTimeField(
-                        blank=True, null=True, verbose_name="最近同步时间"
-                    ),
+                    models.DateTimeField(blank=True, null=True, verbose_name="最近同步时间"),
                 ),
                 (
                     "last_sync_error",
@@ -107,15 +102,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "category",
-                    models.CharField(
-                        default="chat", max_length=20, verbose_name="模型分类"
-                    ),
+                    models.CharField(default="chat", max_length=20, verbose_name="模型分类"),
                 ),
                 (
                     "param_spec",
-                    models.JSONField(
-                        blank=True, default=list, verbose_name="调用参数规格"
-                    ),
+                    models.JSONField(blank=True, default=list, verbose_name="调用参数规格"),
                 ),
                 (
                     "source",
@@ -128,15 +119,11 @@ class Migration(migrations.Migration):
                 ("enabled", models.BooleanField(default=True, verbose_name="是否启用")),
                 (
                     "raw",
-                    models.JSONField(
-                        blank=True, default=dict, verbose_name="供应商原始信息"
-                    ),
+                    models.JSONField(blank=True, default=dict, verbose_name="供应商原始信息"),
                 ),
                 (
                     "synced_at",
-                    models.DateTimeField(
-                        blank=True, null=True, verbose_name="最近拉取时间"
-                    ),
+                    models.DateTimeField(blank=True, null=True, verbose_name="最近拉取时间"),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -165,9 +152,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="llmmodel",
-            index=models.Index(
-                fields=["provider", "category"], name="llm_model_provider_cat_idx"
-            ),
+            index=models.Index(fields=["provider", "category"], name="llm_model_provider_cat_idx"),
         ),
         migrations.AddConstraint(
             model_name="llmmodel",

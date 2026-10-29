@@ -94,11 +94,7 @@ async function onSubmit() {
             @blur="onCheckUsername"
           />
           <p v-if="checking" class="form-tip">检查中...</p>
-          <p
-            v-else-if="usernameTip"
-            class="form-tip"
-            :class="{ 'form-tip-ok': usernameAvailable }"
-          >
+          <p v-else-if="usernameTip" class="form-tip" :class="{ 'form-tip-ok': usernameAvailable }">
             {{ usernameTip }}
           </p>
         </div>

@@ -6,19 +6,19 @@ repos:
   - repo: local
     hooks:
       - id: backend-ruff-check
-        name: backend: ruff check --fix
+        name: "backend: ruff check --fix"
         entry: uv run --project backend ruff check --fix
         language: system
         files: ^backend/.*\.py$
 
       - id: backend-ruff-format
-        name: backend: ruff format
+        name: "backend: ruff format"
         entry: uv run --project backend ruff format
         language: system
         files: ^backend/.*\.py$
 
       - id: frontend-prettier
-        name: frontend: prettier --write
+        name: "frontend: prettier --write"
         entry: node frontend/node_modules/prettier/bin/prettier.cjs --write
         language: system
         files: ^frontend/.*\.(js|mjs|cjs|ts|vue|json|css|html|md)$

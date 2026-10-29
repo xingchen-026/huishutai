@@ -1,16 +1,16 @@
-import request from "./request"
+import request from './request'
 
 // 后端统一返回结构：{ code, message, data }
 export interface ApiResult<T = unknown> {
-    code: number
-    message: string
-    data: T
+  code: number
+  message: string
+  data: T
 }
 
 export interface AuthData {
-    token: string
-    user_id: number
-    username: string
+  token: string
+  user_id: number
+  username: string
 }
 
 export type Gender = 'male' | 'female' | 'unknown'
@@ -53,9 +53,7 @@ export function getProfile() {
 }
 
 // 更新资料：PATCH /user/info/
-export function updateProfile(
-  payload: Partial<Pick<UserProfile, 'email' | 'phone' | 'gender'>>,
-) {
+export function updateProfile(payload: Partial<Pick<UserProfile, 'email' | 'phone' | 'gender'>>) {
   return request.patch<any, ApiResult<UserProfile>>('/user/info/', payload)
 }
 
