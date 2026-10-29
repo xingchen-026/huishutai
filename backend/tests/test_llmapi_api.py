@@ -1,7 +1,7 @@
 """LLMapi HTTP 接口测试：认证、权限隔离、状态码与统一响应结构。"""
+
 from __future__ import annotations
 
-import json
 from unittest.mock import patch
 
 from django.test import TestCase
@@ -9,7 +9,7 @@ from django.test import TestCase
 from LLMapi.adapters import ProviderError
 from LLMapi.result import LLMStatus
 from sqldb.models import LLMModel, LLMProviderConfig
-from tests.utils import api, bearer, make_model, make_provider, make_user
+from tests.utils import api, make_model, make_provider, make_user
 
 CHAT_MODELS = [
     {"model_id": "gpt-4o", "display_name": "GPT-4o", "raw": {}},
@@ -132,9 +132,7 @@ class ProviderApiTest(TestCase):
         provider = LLMProviderConfig.objects.get(pk=provider_data["id"])
         self.assertEqual(provider.user_id, self.user.pk)
 
-        listing = assert_api_success(
-            self, api(self.client, "get", "/llm/providers/", self.user)
-        )
+        listing = assert_api_success(self, api(self.client, "get", "/llm/providers/", self.user))
         self.assertEqual(listing["data"]["total"], 1)
         self.assertEqual(listing["data"]["providers"][0]["model_count"], 2)
 
@@ -157,10 +155,20 @@ class ProviderApiTest(TestCase):
     def test_create_provider_duplicate_name(self):
         fake = FakeAdapter(models=[])
         with patch_adapter(fake):
-            api(self.client, "post", "/llm/providers/", self.user,
-                {"template_code": "openai", "name": "dup", "api_key": "sk-x-12345678"})
-            second = api(self.client, "post", "/llm/providers/", self.user,
-                         {"template_code": "openai", "name": "dup", "api_key": "sk-x-12345678"})
+            api(
+                self.client,
+                "post",
+                "/llm/providers/",
+                self.user,
+                {"template_code": "openai", "name": "dup", "api_key": "sk-x-12345678"},
+            )
+            second = api(
+                self.client,
+                "post",
+                "/llm/providers/",
+                self.user,
+                {"template_code": "openai", "name": "dup", "api_key": "sk-x-12345678"},
+            )
         self.assertEqual(second.status_code, 400)
         self.assertIn("已存在", second.json()["message"])
 
@@ -170,8 +178,13 @@ class ProviderApiTest(TestCase):
             ProviderError(LLMStatus.PROVIDER_AUTH_ERR, "bad key", upstream_status=401)
         )
         with patch_adapter(fake):
-            response = api(self.client, "post", "/llm/providers/", self.user,
-                           {"template_code": "openai", "api_key": "sk-bad-123456"})
+            response = api(
+                self.client,
+                "post",
+                "/llm/providers/",
+                self.user,
+                {"template_code": "openai", "api_key": "sk-bad-123456"},
+            )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["code"], int(LLMStatus.PROVIDER_AUTH_ERR))
         self.assertEqual(LLMProviderConfig.objects.count(), 0)
@@ -182,8 +195,13 @@ class ProviderApiTest(TestCase):
                 raise ProviderError(LLMStatus.PROVIDER_UNREACHABLE, "down")
 
         with patch_adapter(FailingAdapter()):
-            response = api(self.client, "post", "/llm/providers/", self.user,
-                           {"template_code": "openai", "api_key": "sk-x-12345678"})
+            response = api(
+                self.client,
+                "post",
+                "/llm/providers/",
+                self.user,
+                {"template_code": "openai", "api_key": "sk-x-12345678"},
+            )
         body = assert_api_success(self, response)
         self.assertEqual(body["data"]["model_sync"]["status"], "unavailable")
         self.assertEqual(LLMProviderConfig.objects.count(), 1)
@@ -193,8 +211,13 @@ class ProviderApiTest(TestCase):
         response = api(self.client, "get", f"/llm/providers/{provider.pk}/", self.user)
         assert_api_success(self, response)
 
-        response = api(self.client, "patch", f"/llm/providers/{provider.pk}/", self.user,
-                       {"name": "new", "enabled": False})
+        response = api(
+            self.client,
+            "patch",
+            f"/llm/providers/{provider.pk}/",
+            self.user,
+            {"name": "new", "enabled": False},
+        )
         body = assert_api_success(self, response)
         self.assertEqual(body["data"]["provider"]["name"], "new")
         self.assertFalse(body["data"]["provider"]["enabled"])
@@ -221,7 +244,9 @@ class ProviderApiTest(TestCase):
         provider = make_provider(self.user)
         fake = FakeAdapter(models=[{"model_id": "gpt-4o", "display_name": "", "raw": {}}])
         with patch_adapter(fake):
-            response = api(self.client, "post", f"/llm/providers/{provider.pk}/refresh-models/", self.user)
+            response = api(
+                self.client, "post", f"/llm/providers/{provider.pk}/refresh-models/", self.user
+            )
         body = assert_api_success(self, response)
         self.assertEqual(body["data"]["count"], 1)
         self.assertTrue(LLMModel.objects.filter(provider=provider, model_id="gpt-4o").exists())
@@ -234,7 +259,9 @@ class ProviderApiTest(TestCase):
                 raise ProviderError(LLMStatus.PROVIDER_UNREACHABLE, "down")
 
         with patch_adapter(FailingAdapter()):
-            response = api(self.client, "post", f"/llm/providers/{provider.pk}/refresh-models/", self.user)
+            response = api(
+                self.client, "post", f"/llm/providers/{provider.pk}/refresh-models/", self.user
+            )
         self.assertEqual(response.status_code, 502)
         self.assertEqual(response.json()["code"], int(LLMStatus.PROVIDER_UNREACHABLE))
 
@@ -246,7 +273,9 @@ class ProviderApiTest(TestCase):
                 raise ProviderError(LLMStatus.PROVIDER_AUTH_ERR, "bad", upstream_status=401)
 
         with patch_adapter(FailingAdapter()):
-            response = api(self.client, "post", f"/llm/providers/{provider.pk}/refresh-models/", self.user)
+            response = api(
+                self.client, "post", f"/llm/providers/{provider.pk}/refresh-models/", self.user
+            )
         self.assertEqual(response.status_code, 400)
 
 
@@ -263,14 +292,24 @@ class ModelApiTest(TestCase):
         body = assert_api_success(self, response)
         self.assertEqual(body["data"]["total"], 2)
 
-        response = api(self.client, "post", f"/llm/providers/{self.provider.pk}/models/", self.user,
-                       {"model_id": "whisper-1"})
+        response = api(
+            self.client,
+            "post",
+            f"/llm/providers/{self.provider.pk}/models/",
+            self.user,
+            {"model_id": "whisper-1"},
+        )
         body = assert_api_success(self, response)
         self.assertEqual(body["data"]["model"]["category"], "audio")
         self.assertEqual(body["data"]["model"]["source"], "manual")
 
-        duplicate = api(self.client, "post", f"/llm/providers/{self.provider.pk}/models/", self.user,
-                        {"model_id": "whisper-1"})
+        duplicate = api(
+            self.client,
+            "post",
+            f"/llm/providers/{self.provider.pk}/models/",
+            self.user,
+            {"model_id": "whisper-1"},
+        )
         self.assertEqual(duplicate.status_code, 400)
 
     def test_models_grouping_and_filters(self):
@@ -294,8 +333,13 @@ class ModelApiTest(TestCase):
         self.assertEqual(body["data"]["total"], 0)
 
     def test_model_update_and_delete(self):
-        response = api(self.client, "patch", f"/llm/models/{self.chat_model.pk}/", self.user,
-                       {"enabled": False, "display_name": "别名"})
+        response = api(
+            self.client,
+            "patch",
+            f"/llm/models/{self.chat_model.pk}/",
+            self.user,
+            {"enabled": False, "display_name": "别名"},
+        )
         body = assert_api_success(self, response)
         self.assertFalse(body["data"]["model"]["enabled"])
         self.assertEqual(body["data"]["model"]["display_name"], "别名")
@@ -307,8 +351,13 @@ class ModelApiTest(TestCase):
 
     def test_model_other_user_not_found(self):
         for method in ("patch", "delete"):
-            response = api(self.client, method, f"/llm/models/{self.chat_model.pk}/", self.other,
-                           {"enabled": True} if method == "patch" else None)
+            response = api(
+                self.client,
+                method,
+                f"/llm/models/{self.chat_model.pk}/",
+                self.other,
+                {"enabled": True} if method == "patch" else None,
+            )
             self.assertEqual(response.status_code, 404)
 
 
@@ -324,9 +373,17 @@ class ChatApiTest(TestCase):
     def test_chat_success(self):
         fake = FakeAdapter()
         with patch_adapter(fake):
-            response = api(self.client, "post", "/llm/chat/", self.user,
-                           {"model_id": self.chat_model.pk, "messages": self.messages,
-                            "params": {"temperature": 0.2}})
+            response = api(
+                self.client,
+                "post",
+                "/llm/chat/",
+                self.user,
+                {
+                    "model_id": self.chat_model.pk,
+                    "messages": self.messages,
+                    "params": {"temperature": 0.2},
+                },
+            )
         body = assert_api_success(self, response)
         self.assertEqual(body["code"], 0)
         self.assertEqual(body["data"]["content"], "API 调用成功")
@@ -338,7 +395,10 @@ class ChatApiTest(TestCase):
             ({}, 400),
             ({"model_id": 999999, "messages": self.messages}, 404),
             ({"model_id": self.chat_model.pk, "messages": []}, 400),
-            ({"model_id": self.chat_model.pk, "messages": self.messages, "params": {"bad": 1}}, 400),
+            (
+                {"model_id": self.chat_model.pk, "messages": self.messages, "params": {"bad": 1}},
+                400,
+            ),
             ({"model_id": self.embed_model.pk, "messages": self.messages}, 400),
         ]
         for payload, status in cases:
@@ -347,23 +407,38 @@ class ChatApiTest(TestCase):
             self.assertIn("code", response.json())
 
     def test_chat_other_user_model_not_found(self):
-        response = api(self.client, "post", "/llm/chat/", self.other,
-                       {"model_id": self.chat_model.pk, "messages": self.messages})
+        response = api(
+            self.client,
+            "post",
+            "/llm/chat/",
+            self.other,
+            {"model_id": self.chat_model.pk, "messages": self.messages},
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_chat_provider_unreachable_maps_502(self):
         fake = FakeAdapter(chat_error=ProviderError(LLMStatus.PROVIDER_UNREACHABLE, "down"))
         with patch_adapter(fake):
-            response = api(self.client, "post", "/llm/chat/", self.user,
-                           {"model_id": self.chat_model.pk, "messages": self.messages})
+            response = api(
+                self.client,
+                "post",
+                "/llm/chat/",
+                self.user,
+                {"model_id": self.chat_model.pk, "messages": self.messages},
+            )
         self.assertEqual(response.status_code, 502)
         self.assertEqual(response.json()["code"], int(LLMStatus.PROVIDER_UNREACHABLE))
 
     def test_embeddings_success(self):
         fake = FakeAdapter()
         with patch_adapter(fake):
-            response = api(self.client, "post", "/llm/embeddings/", self.user,
-                           {"model_id": self.embed_model.pk, "input": "hello"})
+            response = api(
+                self.client,
+                "post",
+                "/llm/embeddings/",
+                self.user,
+                {"model_id": self.embed_model.pk, "input": "hello"},
+            )
         body = assert_api_success(self, response)
         self.assertEqual(body["data"]["dimensions"], 2)
         self.assertEqual(body["data"]["embeddings"], [[0.1, 0.2]])
@@ -373,7 +448,14 @@ class ChatApiTest(TestCase):
             ({"model_id": self.chat_model.pk, "input": "x"}, 400),
             ({"model_id": self.embed_model.pk, "input": ""}, 400),
             ({"model_id": self.embed_model.pk, "input": ["ok", ""]}, 400),
-            ({"model_id": self.embed_model.pk, "input": "x", "params": {"encoding_format": "bad"}}, 400),
+            (
+                {
+                    "model_id": self.embed_model.pk,
+                    "input": "x",
+                    "params": {"encoding_format": "bad"},
+                },
+                400,
+            ),
         ]
         for payload, status in cases:
             response = api(self.client, "post", "/llm/embeddings/", self.user, payload)
@@ -382,9 +464,17 @@ class ChatApiTest(TestCase):
     def test_api_key_never_returned_in_plaintext(self):
         fake = FakeAdapter()
         with patch_adapter(fake):
-            create = api(self.client, "post", "/llm/providers/", self.user,
-                         {"template_code": "openai", "name": "secret-test",
-                          "api_key": "sk-very-secret-key-123456"})
+            create = api(
+                self.client,
+                "post",
+                "/llm/providers/",
+                self.user,
+                {
+                    "template_code": "openai",
+                    "name": "secret-test",
+                    "api_key": "sk-very-secret-key-123456",
+                },
+            )
             self.assertEqual(create.status_code, 200, create.content[:200])
             listing = api(self.client, "get", "/llm/providers/", self.user)
         self.assertNotIn("sk-very-secret-key-123456", create.content.decode("utf-8"))

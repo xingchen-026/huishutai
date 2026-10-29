@@ -1,4 +1,5 @@
 """LLMapi 业务层测试：供应商配置、模型同步、统一调用网关（DB 用 SQLite，供应商 mock）。"""
+
 from __future__ import annotations
 
 import unittest
@@ -10,7 +11,6 @@ from django.utils import timezone
 
 from LLMapi import services
 from LLMapi.adapters import ProviderAccess, ProviderError
-from LLMapi.model_meta import build_param_spec
 from LLMapi.result import LLMStatus
 from sqldb.models import LLMModel, LLMProviderConfig
 from tests.utils import make_model, make_provider, make_user
@@ -91,7 +91,9 @@ class CreateProviderTest(TestCase):
                 },
             )
         self.assertTrue(result.success, result.message)
-        self.assertEqual(result.data["model_sync"], {"status": "ok", "count": 2, "message": "模型列表已同步"})
+        self.assertEqual(
+            result.data["model_sync"], {"status": "ok", "count": 2, "message": "模型列表已同步"}
+        )
         provider = LLMProviderConfig.objects.get(user=self.user)
         self.assertEqual(provider.name, "我的配置")
         self.assertEqual(provider.protocol, "openai")
@@ -217,9 +219,7 @@ class CreateProviderTest(TestCase):
         self.assertEqual(LLMProviderConfig.objects.count(), 0)
 
     def test_unreachable_still_saves_config_with_sync_error(self):
-        fake = FakeAdapter(
-            list_error=ProviderError(LLMStatus.PROVIDER_UNREACHABLE, "down")
-        )
+        fake = FakeAdapter(list_error=ProviderError(LLMStatus.PROVIDER_UNREACHABLE, "down"))
         with patch_adapter(fake):
             result = services.create_provider(
                 self.user, {"template_code": "openai", "api_key": "sk-x-12345678"}
@@ -323,7 +323,9 @@ class ProviderCrudServiceTest(TestCase):
         self.assertEqual(access.base_url, "https://new.example.com/v1")
         self.assertFalse(LLMModel.objects.filter(pk=stale.pk).exists())
         self.assertTrue(LLMModel.objects.filter(pk=manual.pk).exists())
-        self.assertTrue(LLMModel.objects.filter(provider=self.provider, model_id="new-model").exists())
+        self.assertTrue(
+            LLMModel.objects.filter(provider=self.provider, model_id="new-model").exists()
+        )
 
     def test_update_api_key_reencrypts_and_uses_new_key(self):
         fake = FakeAdapter(models=[])
@@ -335,7 +337,9 @@ class ProviderCrudServiceTest(TestCase):
         self.provider.refresh_from_db()
         from LLMapi import crypto
 
-        self.assertEqual(crypto.decrypt_api_key(self.provider.api_key_encrypted), "sk-new-key-987654")
+        self.assertEqual(
+            crypto.decrypt_api_key(self.provider.api_key_encrypted), "sk-new-key-987654"
+        )
         self.assertEqual(self.provider.api_key_masked, "sk-****7654")
         self.assertEqual(fake.calls[0][1].api_key, "sk-new-key-987654")
 
@@ -374,10 +378,12 @@ class RefreshModelsTest(TestCase):
         self.manual = make_model(self.provider, model_id="manual-keep", source="manual")
 
     def test_refresh_success_updates_models_and_timestamp(self):
-        fake = FakeAdapter(models=[
-            {"model_id": "auto-old", "display_name": "Old", "raw": {}},
-            {"model_id": "auto-new", "display_name": "", "raw": {}},
-        ])
+        fake = FakeAdapter(
+            models=[
+                {"model_id": "auto-old", "display_name": "Old", "raw": {}},
+                {"model_id": "auto-new", "display_name": "", "raw": {}},
+            ]
+        )
         before = timezone.now() - timedelta(seconds=1)
         with patch_adapter(fake):
             result = services.refresh_models(self.user, self.provider.pk)
@@ -387,8 +393,12 @@ class RefreshModelsTest(TestCase):
         self.assertIsNotNone(self.provider.last_synced_at)
         self.assertGreaterEqual(self.provider.last_synced_at, before)
         self.assertEqual(self.provider.last_sync_error, "")
-        self.assertTrue(LLMModel.objects.filter(provider=self.provider, model_id="auto-new").exists())
-        self.assertTrue(LLMModel.objects.filter(provider=self.provider, model_id="manual-keep").exists())
+        self.assertTrue(
+            LLMModel.objects.filter(provider=self.provider, model_id="auto-new").exists()
+        )
+        self.assertTrue(
+            LLMModel.objects.filter(provider=self.provider, model_id="manual-keep").exists()
+        )
 
     def test_refresh_empty_list_marks_unavailable(self):
         fake = FakeAdapter(models=[])
@@ -419,9 +429,7 @@ class RefreshModelsTest(TestCase):
 
     def test_refresh_other_user_provider(self):
         other = make_user("bob")
-        self.assertEqual(
-            services.refresh_models(other, self.provider.pk).code, LLMStatus.NOT_FOUND
-        )
+        self.assertEqual(services.refresh_models(other, self.provider.pk).code, LLMStatus.NOT_FOUND)
 
 
 class ModelServiceTest(TestCase):
@@ -467,9 +475,7 @@ class ModelServiceTest(TestCase):
         )
 
     def test_add_manual_model_classifies_and_marks_source(self):
-        result = services.add_manual_model(
-            self.user, self.provider.pk, {"model_id": "whisper-1"}
-        )
+        result = services.add_manual_model(self.user, self.provider.pk, {"model_id": "whisper-1"})
         self.assertTrue(result.success, result.message)
         model = LLMModel.objects.get(pk=result.data["model"]["id"])
         self.assertEqual(model.category, "audio")
@@ -488,9 +494,7 @@ class ModelServiceTest(TestCase):
             LLMStatus.PARAM_ERR,
         )
         services.add_manual_model(self.user, self.provider.pk, {"model_id": "manual-1"})
-        duplicate = services.add_manual_model(
-            self.user, self.provider.pk, {"model_id": "manual-1"}
-        )
+        duplicate = services.add_manual_model(self.user, self.provider.pk, {"model_id": "manual-1"})
         self.assertEqual(duplicate.code, LLMStatus.PARAM_ERR)
         self.assertIn("已存在", duplicate.message)
 
@@ -561,18 +565,20 @@ class CallGatewayTest(TestCase):
     @unittest.expectedFailure
     def test_chat_rejects_non_integer_model_id(self):
         """已知缺陷：_parse_model_id 用 int() 强转，1.5/True 会被静默截断成整数。"""
-        result = services.chat_completion(
-            self.user, {"model_id": 1.5, "messages": self.messages}
-        )
+        result = services.chat_completion(self.user, {"model_id": 1.5, "messages": self.messages})
         self.assertEqual(result.code, LLMStatus.PARAM_ERR)
 
     def test_chat_not_found_and_ownership(self):
         self.assertEqual(
-            services.chat_completion(self.user, {"model_id": 999999, "messages": self.messages}).code,
+            services.chat_completion(
+                self.user, {"model_id": 999999, "messages": self.messages}
+            ).code,
             LLMStatus.NOT_FOUND,
         )
         self.assertEqual(
-            services.chat_completion(self.other, {"model_id": self.chat_model.pk, "messages": self.messages}).code,
+            services.chat_completion(
+                self.other, {"model_id": self.chat_model.pk, "messages": self.messages}
+            ).code,
             LLMStatus.NOT_FOUND,
         )
 
@@ -739,10 +745,18 @@ class SyncAndHelpersTest(TestCase):
         from sqldb.enums import DBStatus
         from sqldb.result import DBResult
 
-        self.assertEqual(services._from_db(DBResult(DBStatus.SUCCESS, "ok", 1)).code, LLMStatus.SUCCESS)
-        self.assertEqual(services._from_db(DBResult(DBStatus.NOT_FOUND, "nf")).code, LLMStatus.NOT_FOUND)
-        self.assertEqual(services._from_db(DBResult(DBStatus.DUPLICATE_ERR, "dup")).code, LLMStatus.PARAM_ERR)
-        self.assertEqual(services._from_db(DBResult(DBStatus.UNKNOWN_ERR, "db")).code, LLMStatus.DB_ERR)
+        self.assertEqual(
+            services._from_db(DBResult(DBStatus.SUCCESS, "ok", 1)).code, LLMStatus.SUCCESS
+        )
+        self.assertEqual(
+            services._from_db(DBResult(DBStatus.NOT_FOUND, "nf")).code, LLMStatus.NOT_FOUND
+        )
+        self.assertEqual(
+            services._from_db(DBResult(DBStatus.DUPLICATE_ERR, "dup")).code, LLMStatus.PARAM_ERR
+        )
+        self.assertEqual(
+            services._from_db(DBResult(DBStatus.UNKNOWN_ERR, "db")).code, LLMStatus.DB_ERR
+        )
 
     def test_as_bool(self):
         for value in (True, 1, "true", "YES", "on"):

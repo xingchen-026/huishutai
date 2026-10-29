@@ -29,9 +29,9 @@ class StorageError(Exception):
 def _split_endpoint(endpoint: str, default_secure: bool) -> tuple[str, bool]:
     endpoint = (endpoint or "").strip().rstrip("/")
     if endpoint.startswith("https://"):
-        return endpoint[len("https://"):], True
+        return endpoint[len("https://") :], True
     if endpoint.startswith("http://"):
-        return endpoint[len("http://"):], False
+        return endpoint[len("http://") :], False
     return endpoint, default_secure
 
 

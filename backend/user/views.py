@@ -27,7 +27,6 @@ from sqldb.enums import DBStatus
 from sqldb.result import DBResult
 from user.auth import IsLoginUser, issue_token
 
-
 USERNAME_RE = re.compile(r"^[A-Za-z0-9_\u4e00-\u9fa5]{3,50}$")
 PHONE_RE = re.compile(r"^1[3-9][0-9]{9}$")
 GENDERS = {"male", "female", "unknown"}
@@ -41,9 +40,8 @@ def _payload(request) -> dict:
 
 
 def _ok(message: str, data=None) -> Response:
-    return Response(
-        DBResult(code=DBStatus.SUCCESS, message=message, data=data).to_dict()
-    )
+    return Response(DBResult(code=DBStatus.SUCCESS, message=message, data=data).to_dict())
+
 
 def _fail(
     message: str,
@@ -55,12 +53,14 @@ def _fail(
         status=status,
     )
 
+
 def _username_error(username: str) -> str | None:
     if not username:
         return "用户名称不能为空"
     if not USERNAME_RE.fullmatch(username):
         return "用户名只能包含中文、字母、数字、下划线，长度 3-50位"
     return None
+
 
 def _password_error(password: str) -> str | None:
     if not password:
@@ -71,6 +71,7 @@ def _password_error(password: str) -> str | None:
         return "密码不能超过 128 位"
     return None
 
+
 def _email_error(email: str) -> str | None:
     if not email:
         return None
@@ -80,12 +81,14 @@ def _email_error(email: str) -> str | None:
         return "邮箱格式不正确"
     return None
 
+
 def _phone_error(phone: str) -> str | None:
     if not phone:
         return None
     if not PHONE_RE.fullmatch(phone):
         return "手机号格式不正确"
     return None
+
 
 def _profile_dict(user, info) -> dict:
     return {
@@ -95,6 +98,7 @@ def _profile_dict(user, info) -> dict:
         "phone": info.phone or "",
         "gender": info.gender or "unknown",
     }
+
 
 def _get_or_create_info(user):
     """老数据可能没有 user_info，读资料时顺手补一条空记录。"""
@@ -120,7 +124,7 @@ def user_register(request):
     if confirm_password is not None and confirm_password != password:
         return _fail("两次输入的密码不一致")
 
-     # 友好提示；真正的唯一性由数据库 unique 约束兜底
+    # 友好提示；真正的唯一性由数据库 unique 约束兜底
     exists = user_crud.exists(username=username)
     if exists.code != DBStatus.SUCCESS:
         return _fail(
@@ -173,6 +177,7 @@ def user_register(request):
         },
     )
 
+
 # ==================== 登录 ====================
 @api_view(["POST"])
 @authentication_classes([])
@@ -209,13 +214,15 @@ def user_login(request):
         },
     )
 
-#==========退出==========
+
+# ==========退出==========
 @api_view(["POST"])
 @authentication_classes([])
 @permission_classes([AllowAny])
 def user_logout(request):
     # 签名 token 是无状态的，服务端没有会话可删；前端清掉本地 token 即可
     return _ok("已退出登录")
+
 
 # ==================== 用户名查重 ====================
 @api_view(["GET"])
@@ -237,7 +244,6 @@ def username_available(request):
         )
 
     return _ok("ok", {"username": username, "available": not result.data})
-
 
 
 # ==================== 个人资料：GET 查看 / PATCH 修改 ====================

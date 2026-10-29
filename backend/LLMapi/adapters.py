@@ -55,9 +55,18 @@ def _error_detail(response: requests.Response) -> str:
 
 
 _AUTH_HINTS = (
-    "api key", "apikey", "invalid key", "incorrect api key",
-    "authentication", "unauthorized", "auth failed", "permission",
-    "鉴权", "认证", "无效的api", "无效的 api",
+    "api key",
+    "apikey",
+    "invalid key",
+    "incorrect api key",
+    "authentication",
+    "unauthorized",
+    "auth failed",
+    "permission",
+    "鉴权",
+    "认证",
+    "无效的api",
+    "无效的 api",
 )
 
 
@@ -87,7 +96,8 @@ def _request(
 
     if response.status_code in (401, 403):
         raise ProviderError(
-            LLMStatus.PROVIDER_AUTH_ERR, "API Key 无效或无权限",
+            LLMStatus.PROVIDER_AUTH_ERR,
+            "API Key 无效或无权限",
             upstream_status=response.status_code,
         )
 
@@ -95,7 +105,8 @@ def _request(
         detail = _error_detail(response)
         if any(hint in detail.lower() for hint in _AUTH_HINTS):
             raise ProviderError(
-                LLMStatus.PROVIDER_AUTH_ERR, "API Key 无效或无权限",
+                LLMStatus.PROVIDER_AUTH_ERR,
+                "API Key 无效或无权限",
                 upstream_status=response.status_code,
             )
         if response.status_code >= 500:
@@ -154,16 +165,20 @@ class OpenAIAdapter:
             model_id = item.get("id") or item.get("model")
             if not model_id:
                 continue
-            result.append({
-                "model_id": str(model_id),
-                "display_name": str(item.get("name") or model_id),
-                "raw": item,
-            })
+            result.append(
+                {
+                    "model_id": str(model_id),
+                    "display_name": str(item.get("name") or model_id),
+                    "raw": item,
+                }
+            )
             if len(result) >= settings.LLMAPI_MAX_MODELS:
                 break
         return result
 
-    def chat(self, access: ProviderAccess, model_id: str, messages: list[dict], params: dict) -> dict:
+    def chat(
+        self, access: ProviderAccess, model_id: str, messages: list[dict], params: dict
+    ) -> dict:
         payload = _request(
             "POST",
             _join(access.base_url, "/chat/completions"),
@@ -180,7 +195,9 @@ class OpenAIAdapter:
             "raw": payload,
         }
 
-    def embeddings(self, access: ProviderAccess, model_id: str, inputs: list[str], params: dict) -> dict:
+    def embeddings(
+        self, access: ProviderAccess, model_id: str, inputs: list[str], params: dict
+    ) -> dict:
         payload = _request(
             "POST",
             _join(access.base_url, "/embeddings"),
@@ -231,11 +248,13 @@ class AnthropicAdapter:
                 model_id = item.get("id")
                 if not model_id:
                     continue
-                result.append({
-                    "model_id": str(model_id),
-                    "display_name": str(item.get("display_name") or model_id),
-                    "raw": item,
-                })
+                result.append(
+                    {
+                        "model_id": str(model_id),
+                        "display_name": str(item.get("display_name") or model_id),
+                        "raw": item,
+                    }
+                )
             if not payload.get("has_more"):
                 break
             last_id = payload.get("last_id")
@@ -246,7 +265,9 @@ class AnthropicAdapter:
                 break
         return result[: settings.LLMAPI_MAX_MODELS]
 
-    def chat(self, access: ProviderAccess, model_id: str, messages: list[dict], params: dict) -> dict:
+    def chat(
+        self, access: ProviderAccess, model_id: str, messages: list[dict], params: dict
+    ) -> dict:
         system_parts = [_text_content(m["content"]) for m in messages if m["role"] == "system"]
         conversation = [
             {"role": m["role"], "content": _text_content(m["content"])}
@@ -274,8 +295,10 @@ class AnthropicAdapter:
             body["stop_sequences"] = params["stop"]
 
         payload = _request(
-            "POST", _join(self._api_base(access), "/messages"),
-            headers=self._headers(access), json_body=body,
+            "POST",
+            _join(self._api_base(access), "/messages"),
+            headers=self._headers(access),
+            json_body=body,
         )
         text = "".join(
             block.get("text", "")
@@ -294,7 +317,9 @@ class AnthropicAdapter:
             "raw": payload,
         }
 
-    def embeddings(self, access: ProviderAccess, model_id: str, inputs: list[str], params: dict) -> dict:
+    def embeddings(
+        self, access: ProviderAccess, model_id: str, inputs: list[str], params: dict
+    ) -> dict:
         raise ProviderError(LLMStatus.MODEL_UNSUPPORTED, "Anthropic 协议不提供 embeddings 接口")
 
 
@@ -318,20 +343,24 @@ class GeminiAdapter:
                 if not isinstance(item, dict):
                     continue
                 name = item.get("name") or ""
-                model_id = name[len("models/"):] if name.startswith("models/") else name
+                model_id = name[len("models/") :] if name.startswith("models/") else name
                 if not model_id:
                     continue
-                result.append({
-                    "model_id": model_id,
-                    "display_name": str(item.get("displayName") or model_id),
-                    "raw": item,
-                })
+                result.append(
+                    {
+                        "model_id": model_id,
+                        "display_name": str(item.get("displayName") or model_id),
+                        "raw": item,
+                    }
+                )
             page_token = payload.get("nextPageToken")
             if not page_token or len(result) >= settings.LLMAPI_MAX_MODELS:
                 break
         return result[: settings.LLMAPI_MAX_MODELS]
 
-    def chat(self, access: ProviderAccess, model_id: str, messages: list[dict], params: dict) -> dict:
+    def chat(
+        self, access: ProviderAccess, model_id: str, messages: list[dict], params: dict
+    ) -> dict:
         system_texts: list[str] = []
         contents: list[dict] = []
         for message in messages:
@@ -372,9 +401,7 @@ class GeminiAdapter:
         candidate = candidates[0] if candidates else {}
         content = candidate.get("content") or {}
         text = "".join(
-            part.get("text", "")
-            for part in content.get("parts") or []
-            if isinstance(part, dict)
+            part.get("text", "") for part in content.get("parts") or [] if isinstance(part, dict)
         )
         usage = payload.get("usageMetadata") or {}
         return {
@@ -388,7 +415,9 @@ class GeminiAdapter:
             "raw": payload,
         }
 
-    def embeddings(self, access: ProviderAccess, model_id: str, inputs: list[str], params: dict) -> dict:
+    def embeddings(
+        self, access: ProviderAccess, model_id: str, inputs: list[str], params: dict
+    ) -> dict:
         requests_body = [
             {
                 "model": f"models/{model_id}",
@@ -412,8 +441,7 @@ class GeminiAdapter:
 
 
 _ADAPTERS: dict[str, Any] = {
-    adapter.protocol: adapter
-    for adapter in (OpenAIAdapter(), AnthropicAdapter(), GeminiAdapter())
+    adapter.protocol: adapter for adapter in (OpenAIAdapter(), AnthropicAdapter(), GeminiAdapter())
 }
 
 

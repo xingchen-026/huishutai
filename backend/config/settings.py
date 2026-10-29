@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -86,7 +86,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.environ.get("POSTGRES_DB", "huishutai"),
         "USER": os.environ.get("POSTGRES_USER", "huishutai"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", ""),   # 用字符串
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", ""),  # 用字符串
         "HOST": os.environ.get("POSTGRES_HOST", "127.0.0.1"),  # compose 传 db
         "PORT": os.environ.get("POSTGRES_PORT", "5432"),
     }
@@ -153,7 +153,7 @@ REST_FRAMEWORK = {
 # ==================== 向量数据库（Milvus） ====================
 # 宿主机直跑后端时用 127.0.0.1；容器内会被 compose 覆盖成 http://milvus:19530
 MILVUS_URI = os.environ.get("MILVUS_URI", "http://127.0.0.1:19530")
-MILVUS_TOKEN = os.environ.get("MILVUS_TOKEN", "")          # 开启鉴权时填 root:Milvus
+MILVUS_TOKEN = os.environ.get("MILVUS_TOKEN", "")  # 开启鉴权时填 root:Milvus
 MILVUS_DB_NAME = os.environ.get("MILVUS_DB_NAME", "default")
 MILVUS_TIMEOUT = float(os.environ.get("MILVUS_TIMEOUT", "10"))
 
@@ -174,7 +174,12 @@ MINIO_SECRET_KEY = os.environ.get("MINIO_SECRET_KEY", "")
 
 # endpoint 不带协议时用这两个开关；带 http:// / https:// 时以协议为准
 MINIO_SECURE = os.environ.get("MINIO_SECURE", "false").lower() in ("1", "true", "yes", "on")
-MINIO_PUBLIC_SECURE = os.environ.get("MINIO_PUBLIC_SECURE", "false").lower() in ("1", "true", "yes", "on")
+MINIO_PUBLIC_SECURE = os.environ.get("MINIO_PUBLIC_SECURE", "false").lower() in (
+    "1",
+    "true",
+    "yes",
+    "on",
+)
 
 MINIO_BUCKET = os.environ.get("MINIO_BUCKET", "huishutai-files")
 MINIO_PRESIGN_EXPIRY = int(os.environ.get("MINIO_PRESIGN_EXPIRY", "3600"))  # 秒，最长 7 天
@@ -184,9 +189,20 @@ MAX_UPLOAD_SIZE = int(os.environ.get("MAX_UPLOAD_SIZE", str(50 * 1024 * 1024)))
 
 # 允许上传的扩展名（小写，含点）
 ALLOWED_UPLOAD_EXTENSIONS = {
-    ".pdf", ".txt", ".md", ".doc", ".docx",
-    ".xls", ".xlsx", ".ppt", ".pptx",
-    ".png", ".jpg", ".jpeg", ".gif", ".webp",
+    ".pdf",
+    ".txt",
+    ".md",
+    ".doc",
+    ".docx",
+    ".xls",
+    ".xlsx",
+    ".ppt",
+    ".pptx",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".webp",
     ".zip",
 }
 
@@ -205,6 +221,9 @@ LLMAPI_HTTP_TIMEOUT = float(os.environ.get("LLMAPI_HTTP_TIMEOUT", "30"))
 LLMAPI_MAX_MODELS = int(os.environ.get("LLMAPI_MAX_MODELS", "1000"))
 
 # 是否允许配置内网/本机 base_url（本地 Ollama 需要 true；生产建议 false 防 SSRF）
-LLMAPI_ALLOW_PRIVATE_BASE_URL = os.environ.get(
-    "LLMAPI_ALLOW_PRIVATE_BASE_URL", "true"
-).lower() in ("1", "true", "yes", "on")
+LLMAPI_ALLOW_PRIVATE_BASE_URL = os.environ.get("LLMAPI_ALLOW_PRIVATE_BASE_URL", "true").lower() in (
+    "1",
+    "true",
+    "yes",
+    "on",
+)

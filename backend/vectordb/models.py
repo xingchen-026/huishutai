@@ -1,4 +1,3 @@
-from django.db import models
 
 """vectordb 不使用 Django ORM 建模。
 

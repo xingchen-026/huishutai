@@ -1,5 +1,4 @@
 from django.db import models
-from django.db import models
 
 
 # 创建路由列表

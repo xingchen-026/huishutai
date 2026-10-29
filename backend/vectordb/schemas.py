@@ -40,9 +40,9 @@ KNOWLEDGE_SCHEMA = CollectionSchema(
     dim=settings.MILVUS_KNOWLEDGE_DIM,
     metric_type=settings.MILVUS_KNOWLEDGE_METRIC_TYPE,
     scalar_fields=(
-        ScalarField("content", 8192),   # 切片原文
-        ScalarField("source", 512),     # 来源（文件名/URL）
-        ScalarField("doc_id", 128),     # 文档标识，便于按文档删除/过滤
+        ScalarField("content", 8192),  # 切片原文
+        ScalarField("source", 512),  # 来源（文件名/URL）
+        ScalarField("doc_id", 128),  # 文档标识，便于按文档删除/过滤
     ),
     description="RAG 知识库切片集合",
 )

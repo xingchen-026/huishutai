@@ -2,6 +2,7 @@
 
 不访问数据库、不发起真实网络请求（requests 全部 mock）。
 """
+
 from __future__ import annotations
 
 import unittest
@@ -131,16 +132,12 @@ class ClassifyModelTest(SimpleTestCase):
             "some-random-model": "chat",
         }
         for model_id, expected in cases.items():
-            self.assertEqual(
-                model_meta.classify_model("openai", model_id), expected, model_id
-            )
+            self.assertEqual(model_meta.classify_model("openai", model_id), expected, model_id)
 
     @unittest.expectedFailure
     def test_classify_rerank_model(self):
         """已知缺陷：_EMBEDDING_KEYS 先于 _RERANK_KEYS 匹配，bge-reranker 被归成 embedding。"""
-        self.assertEqual(
-            model_meta.classify_model("openai", "bge-reranker-v2"), "rerank"
-        )
+        self.assertEqual(model_meta.classify_model("openai", "bge-reranker-v2"), "rerank")
 
     def test_classify_gemini_uses_supported_methods(self):
         self.assertEqual(
@@ -183,9 +180,7 @@ class ParamSpecTest(SimpleTestCase):
         self.assertEqual(spec["temperature"]["maximum"], 1.0)
 
     def test_gemini_chat_spec(self):
-        spec = self._spec_by_name(
-            model_meta.build_param_spec("gemini", "chat", "gemini-2.0-flash")
-        )
+        spec = self._spec_by_name(model_meta.build_param_spec("gemini", "chat", "gemini-2.0-flash"))
         self.assertEqual(spec["temperature"]["maximum"], 2.0)
         self.assertEqual(spec["top_k"]["maximum"], 200)
         self.assertEqual(spec["max_tokens"]["default"], 2048)
@@ -203,15 +198,13 @@ class ParamSpecTest(SimpleTestCase):
 
     def test_non_chat_categories_have_no_generation_params(self):
         for category in ("rerank", "image", "audio", "other"):
-            self.assertEqual(
-                model_meta.build_param_spec("openai", category, "x"), [], category
-            )
+            self.assertEqual(model_meta.build_param_spec("openai", category, "x"), [], category)
 
     def test_max_output_tokens_heuristics(self):
         def max_tokens(model_id):
-            return self._spec_by_name(
-                model_meta.build_param_spec("openai", "chat", model_id)
-            )["max_tokens"]["maximum"]
+            return self._spec_by_name(model_meta.build_param_spec("openai", "chat", model_id))[
+                "max_tokens"
+            ]["maximum"]
 
         self.assertEqual(max_tokens("deepseek-chat"), 8192)
         self.assertEqual(max_tokens("deepseek-reasoner"), 100000)
@@ -226,7 +219,9 @@ class ValidateMessagesTest(SimpleTestCase):
             [{"role": "system", "content": "sys"}, {"role": "user", "content": "hi"}]
         )
         self.assertEqual(errors, [])
-        self.assertEqual(cleaned, [{"role": "system", "content": "sys"}, {"role": "user", "content": "hi"}])
+        self.assertEqual(
+            cleaned, [{"role": "system", "content": "sys"}, {"role": "user", "content": "hi"}]
+        )
 
     def test_content_list_allowed(self):
         _, errors = model_meta.validate_messages(
@@ -350,10 +345,10 @@ class RequestHelperTest(SimpleTestCase):
             _error_detail(FakeResponse(400, {"error": {"message": "bad key"}})), "bad key"
         )
         self.assertEqual(_error_detail(FakeResponse(400, {"error": "bad"})), "bad")
-        self.assertEqual(_error_detail(FakeResponse(400, "plain text", text="plain text")), "plain text")
         self.assertEqual(
-            _error_detail(FakeResponse(400, None, text="", json_error=True)), ""
+            _error_detail(FakeResponse(400, "plain text", text="plain text")), "plain text"
         )
+        self.assertEqual(_error_detail(FakeResponse(400, None, text="", json_error=True)), "")
 
     def test_request_success(self):
         with patch(
@@ -366,7 +361,10 @@ class RequestHelperTest(SimpleTestCase):
         cases = [
             (FakeResponse(401, {"error": "unauthorized"}), LLMStatus.PROVIDER_AUTH_ERR),
             (FakeResponse(403, {"error": "forbidden"}), LLMStatus.PROVIDER_AUTH_ERR),
-            (FakeResponse(400, {"error": {"message": "invalid api key"}}), LLMStatus.PROVIDER_AUTH_ERR),
+            (
+                FakeResponse(400, {"error": {"message": "invalid api key"}}),
+                LLMStatus.PROVIDER_AUTH_ERR,
+            ),
             (FakeResponse(400, {"error": {"message": "bad request"}}), LLMStatus.PROVIDER_API_ERR),
             (FakeResponse(500, {"error": "boom"}), LLMStatus.PROVIDER_API_ERR),
             (FakeResponse(200, None, json_error=True), LLMStatus.PROVIDER_API_ERR),
@@ -399,12 +397,17 @@ class OpenAIAccessAdapterTest(SimpleTestCase):
 
         def fake_request(method, url, **kwargs):
             captured.update(method=method, url=url, kwargs=kwargs)
-            return FakeResponse(200, {"data": [
-                {"id": "gpt-4o", "name": "GPT-4o"},
-                {"id": "text-embedding-3-small"},
-                {"no_id": True},
-                "bad-item",
-            ]})
+            return FakeResponse(
+                200,
+                {
+                    "data": [
+                        {"id": "gpt-4o", "name": "GPT-4o"},
+                        {"id": "text-embedding-3-small"},
+                        {"no_id": True},
+                        "bad-item",
+                    ]
+                },
+            )
 
         with patch("LLMapi.adapters.requests.request", side_effect=fake_request):
             models = adapter.list_models(OPENAI_ACCESS)
@@ -429,13 +432,23 @@ class OpenAIAccessAdapterTest(SimpleTestCase):
 
         def fake_request(method, url, **kwargs):
             captured.update(url=url, body=kwargs.get("json"))
-            return FakeResponse(200, {
-                "choices": [{
-                    "message": {"content": [{"type": "text", "text": "he"}, {"type": "text", "text": "llo"}]},
-                    "finish_reason": "stop",
-                }],
-                "usage": {"prompt_tokens": 3, "completion_tokens": 2, "total_tokens": 5},
-            })
+            return FakeResponse(
+                200,
+                {
+                    "choices": [
+                        {
+                            "message": {
+                                "content": [
+                                    {"type": "text", "text": "he"},
+                                    {"type": "text", "text": "llo"},
+                                ]
+                            },
+                            "finish_reason": "stop",
+                        }
+                    ],
+                    "usage": {"prompt_tokens": 3, "completion_tokens": 2, "total_tokens": 5},
+                },
+            )
 
         with patch("LLMapi.adapters.requests.request", side_effect=fake_request):
             result = adapter.chat(
@@ -454,10 +467,15 @@ class OpenAIAccessAdapterTest(SimpleTestCase):
 
         def fake_request(method, url, **kwargs):
             captured["body"] = kwargs.get("json")
-            return FakeResponse(200, {"data": [
-                {"index": 1, "embedding": [0.3, 0.4]},
-                {"index": 0, "embedding": [0.1, 0.2]},
-            ]})
+            return FakeResponse(
+                200,
+                {
+                    "data": [
+                        {"index": 1, "embedding": [0.3, 0.4]},
+                        {"index": 0, "embedding": [0.1, 0.2]},
+                    ]
+                },
+            )
 
         with patch("LLMapi.adapters.requests.request", side_effect=fake_request):
             single = adapter.embeddings(OPENAI_ACCESS, "text-embedding-3-small", ["one"], {})
@@ -472,7 +490,9 @@ class OpenAIAccessAdapterTest(SimpleTestCase):
 
 class AnthropicAdapterTest(SimpleTestCase):
     def test_api_base_appends_v1(self):
-        self.assertEqual(AnthropicAdapter()._api_base(ANTHROPIC_ACCESS), "https://api.anthropic.com/v1")
+        self.assertEqual(
+            AnthropicAdapter()._api_base(ANTHROPIC_ACCESS), "https://api.anthropic.com/v1"
+        )
         self.assertEqual(
             AnthropicAdapter()._api_base(ProviderAccess("anthropic", "https://x/v1", "k")),
             "https://x/v1",
@@ -481,8 +501,12 @@ class AnthropicAdapterTest(SimpleTestCase):
     def test_list_models_paginates(self):
         adapter = AnthropicAdapter()
         responses = [
-            FakeResponse(200, {"data": [{"id": "claude-a"}], "has_more": True, "last_id": "claude-a"}),
-            FakeResponse(200, {"data": [{"id": "claude-b", "display_name": "Claude B"}], "has_more": False}),
+            FakeResponse(
+                200, {"data": [{"id": "claude-a"}], "has_more": True, "last_id": "claude-a"}
+            ),
+            FakeResponse(
+                200, {"data": [{"id": "claude-b", "display_name": "Claude B"}], "has_more": False}
+            ),
         ]
         mock_request = Mock(side_effect=responses)
         with patch("LLMapi.adapters.requests.request", mock_request):
@@ -497,12 +521,18 @@ class AnthropicAdapterTest(SimpleTestCase):
 
         def fake_request(method, url, **kwargs):
             captured.update(url=url, body=kwargs.get("json"), headers=kwargs.get("headers"))
-            return FakeResponse(200, {
-                "content": [{"type": "text", "text": "Hel"}, {"type": "text", "text": "lo"},
-                            {"type": "tool_use"}],
-                "stop_reason": "end_turn",
-                "usage": {"input_tokens": 4, "output_tokens": 2},
-            })
+            return FakeResponse(
+                200,
+                {
+                    "content": [
+                        {"type": "text", "text": "Hel"},
+                        {"type": "text", "text": "lo"},
+                        {"type": "tool_use"},
+                    ],
+                    "stop_reason": "end_turn",
+                    "usage": {"input_tokens": 4, "output_tokens": 2},
+                },
+            )
 
         messages = [
             {"role": "system", "content": "be nice"},
@@ -510,14 +540,18 @@ class AnthropicAdapterTest(SimpleTestCase):
             {"role": "assistant", "content": "hello"},
         ]
         with patch("LLMapi.adapters.requests.request", side_effect=fake_request):
-            result = adapter.chat(ANTHROPIC_ACCESS, "claude-3", messages,
-                                  {"temperature": 0.2, "stop": ["END"]})
+            result = adapter.chat(
+                ANTHROPIC_ACCESS, "claude-3", messages, {"temperature": 0.2, "stop": ["END"]}
+            )
         self.assertEqual(captured["url"], "https://api.anthropic.com/v1/messages")
         self.assertEqual(captured["body"]["system"], "be nice")
-        self.assertEqual(captured["body"]["messages"], [
-            {"role": "user", "content": "hi"},
-            {"role": "assistant", "content": "hello"},
-        ])
+        self.assertEqual(
+            captured["body"]["messages"],
+            [
+                {"role": "user", "content": "hi"},
+                {"role": "assistant", "content": "hello"},
+            ],
+        )
         self.assertEqual(captured["body"]["max_tokens"], 1024)
         self.assertEqual(captured["body"]["stop_sequences"], ["END"])
         self.assertEqual(captured["headers"]["x-api-key"], "sk-ant-123")
@@ -547,10 +581,16 @@ class GeminiAdapterTest(SimpleTestCase):
     def test_list_models_strips_prefix_and_paginates(self):
         adapter = GeminiAdapter()
         responses = [
-            FakeResponse(200, {"models": [
-                {"name": "models/gemini-2.0-flash", "displayName": "Gemini 2.0 Flash"},
-                {"name": "models/text-embedding-004"},
-            ], "nextPageToken": "page-2"}),
+            FakeResponse(
+                200,
+                {
+                    "models": [
+                        {"name": "models/gemini-2.0-flash", "displayName": "Gemini 2.0 Flash"},
+                        {"name": "models/text-embedding-004"},
+                    ],
+                    "nextPageToken": "page-2",
+                },
+            ),
             FakeResponse(200, {"models": [{"name": "models/gemini-2.5-pro"}]}),
         ]
         mock_request = Mock(side_effect=responses)
@@ -570,10 +610,19 @@ class GeminiAdapterTest(SimpleTestCase):
 
         def fake_request(method, url, **kwargs):
             captured.update(url=url, body=kwargs.get("json"), params=kwargs.get("params"))
-            return FakeResponse(200, {
-                "candidates": [{"content": {"parts": [{"text": "Hello"}]}, "finishReason": "STOP"}],
-                "usageMetadata": {"promptTokenCount": 3, "candidatesTokenCount": 2, "totalTokenCount": 5},
-            })
+            return FakeResponse(
+                200,
+                {
+                    "candidates": [
+                        {"content": {"parts": [{"text": "Hello"}]}, "finishReason": "STOP"}
+                    ],
+                    "usageMetadata": {
+                        "promptTokenCount": 3,
+                        "candidatesTokenCount": 2,
+                        "totalTokenCount": 5,
+                    },
+                },
+            )
 
         messages = [
             {"role": "system", "content": "sys"},
@@ -581,16 +630,24 @@ class GeminiAdapterTest(SimpleTestCase):
             {"role": "assistant", "content": "hello"},
         ]
         with patch("LLMapi.adapters.requests.request", side_effect=fake_request):
-            result = adapter.chat(GEMINI_ACCESS, "gemini-2.0-flash", messages,
-                                  {"temperature": 0.5, "max_tokens": 100, "stop": ["X"]})
+            result = adapter.chat(
+                GEMINI_ACCESS,
+                "gemini-2.0-flash",
+                messages,
+                {"temperature": 0.5, "max_tokens": 100, "stop": ["X"]},
+            )
         self.assertEqual(
             captured["url"],
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
         )
         self.assertEqual(captured["params"]["key"], "gem-key-123")
         self.assertEqual(captured["body"]["systemInstruction"], {"parts": [{"text": "sys"}]})
-        self.assertEqual(captured["body"]["contents"][0], {"role": "user", "parts": [{"text": "hi"}]})
-        self.assertEqual(captured["body"]["contents"][1], {"role": "model", "parts": [{"text": "hello"}]})
+        self.assertEqual(
+            captured["body"]["contents"][0], {"role": "user", "parts": [{"text": "hi"}]}
+        )
+        self.assertEqual(
+            captured["body"]["contents"][1], {"role": "model", "parts": [{"text": "hello"}]}
+        )
         self.assertEqual(captured["body"]["generationConfig"]["maxOutputTokens"], 100)
         self.assertEqual(result["content"], "Hello")
         self.assertEqual(result["finish_reason"], "STOP")

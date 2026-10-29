@@ -17,7 +17,6 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"[OK] MinIO {info['endpoint']} bucket={info['bucket']} "
-                f"buckets={info['buckets']}"
+                f"[OK] MinIO {info['endpoint']} bucket={info['bucket']} buckets={info['buckets']}"
             )
         )

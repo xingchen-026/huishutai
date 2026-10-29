@@ -18,10 +18,6 @@ from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
-from sqldb.crud import llm_model_crud, llm_provider_crud
-from sqldb.enums import DBStatus
-from sqldb.result import DBResult
-
 from LLMapi import crypto
 from LLMapi.adapters import ProviderAccess, ProviderError, get_adapter
 from LLMapi.model_meta import (
@@ -35,6 +31,9 @@ from LLMapi.model_meta import (
 )
 from LLMapi.result import LLMResult, LLMStatus
 from LLMapi.templates import get_template, list_templates
+from sqldb.crud import llm_model_crud, llm_provider_crud
+from sqldb.enums import DBStatus
+from sqldb.result import DBResult
 
 logger = logging.getLogger(__name__)
 
@@ -165,9 +164,7 @@ def _sync_models(provider, fetched: list[dict]) -> int:
             if existing.code == DBStatus.SUCCESS:
                 llm_model_crud.update(existing.data.pk, **values)
             elif existing.code == DBStatus.NOT_FOUND:
-                created = llm_model_crud.create(
-                    provider=provider, model_id=model_id, **values
-                )
+                created = llm_model_crud.create(provider=provider, model_id=model_id, **values)
                 if created.code != DBStatus.SUCCESS:
                     continue
             else:
@@ -188,8 +185,7 @@ def list_provider_templates() -> LLMResult:
         {
             "templates": list_templates(),
             "categories": [
-                {"code": code, "label": CATEGORY_LABELS.get(code, code)}
-                for code in CATEGORIES
+                {"code": code, "label": CATEGORY_LABELS.get(code, code)} for code in CATEGORIES
             ],
         },
     )
@@ -206,9 +202,7 @@ def create_provider(user, data: dict | None = None) -> LLMResult:
     if not name:
         return LLMResult(LLMStatus.PARAM_ERR, "配置名称不能为空")
 
-    base_url, error = _check_base_url(
-        str(data.get("base_url") or template.default_base_url)
-    )
+    base_url, error = _check_base_url(str(data.get("base_url") or template.default_base_url))
     if error:
         return LLMResult(LLMStatus.PARAM_ERR, error)
 
@@ -282,9 +276,7 @@ def list_providers(user) -> LLMResult:
         count_result = llm_model_crud.count(provider_id=provider.pk)
         count = count_result.data if count_result.code == DBStatus.SUCCESS else 0
         providers.append(_provider_dict(provider, count))
-    return LLMResult(
-        LLMStatus.SUCCESS, "ok", {"total": len(providers), "providers": providers}
-    )
+    return LLMResult(LLMStatus.SUCCESS, "ok", {"total": len(providers), "providers": providers})
 
 
 def get_provider(user, provider_id: int) -> LLMResult:
@@ -360,9 +352,7 @@ def update_provider(user, provider_id: int, data: dict | None = None) -> LLMResu
                 sync_message = SYNC_EMPTY
         except ProviderError as exc:
             if exc.code == LLMStatus.PROVIDER_AUTH_ERR:
-                return LLMResult(
-                    LLMStatus.PROVIDER_AUTH_ERR, "API Key 无效或无权限，配置未保存"
-                )
+                return LLMResult(LLMStatus.PROVIDER_AUTH_ERR, "API Key 无效或无权限，配置未保存")
             sync_status = "unavailable"
             sync_message = SYNC_UNAVAILABLE
 
@@ -373,9 +363,7 @@ def update_provider(user, provider_id: int, data: dict | None = None) -> LLMResu
                 fields["api_key_encrypted"] = (
                     crypto.encrypt_api_key(new_api_key) if new_api_key else ""
                 )
-                fields["api_key_masked"] = (
-                    crypto.mask_api_key(new_api_key) if new_api_key else ""
-                )
+                fields["api_key_masked"] = crypto.mask_api_key(new_api_key) if new_api_key else ""
             except ValueError as exc:
                 return LLMResult(LLMStatus.PARAM_ERR, str(exc))
 
@@ -430,7 +418,8 @@ def refresh_models(user, provider_id: int) -> LLMResult:
             last_sync_error=SYNC_UNAVAILABLE[:500],
         )
         return LLMResult(
-            exc.code, SYNC_UNAVAILABLE,
+            exc.code,
+            SYNC_UNAVAILABLE,
             {"detail": exc.message, "upstream_status": exc.upstream_status},
         )
 
@@ -443,12 +432,8 @@ def refresh_models(user, provider_id: int) -> LLMResult:
         return LLMResult(LLMStatus.SUCCESS, SYNC_EMPTY, {"status": "unavailable", "count": 0})
 
     count = _sync_models(provider, fetched)
-    llm_provider_crud.update(
-        provider.pk, last_synced_at=timezone.now(), last_sync_error=""
-    )
-    return LLMResult(
-        LLMStatus.SUCCESS, f"模型列表已同步（{count} 个）", {"count": count}
-    )
+    llm_provider_crud.update(provider.pk, last_synced_at=timezone.now(), last_sync_error="")
+    return LLMResult(LLMStatus.SUCCESS, f"模型列表已同步（{count} 个）", {"count": count})
 
 
 # ==================== 模型 ====================
@@ -470,9 +455,7 @@ def list_models(user, data: dict | None = None) -> LLMResult:
     else:
         provider_id = None
 
-    result = llm_model_crud.list_by_user(
-        user.pk, category=category, provider_id=provider_id
-    )
+    result = llm_model_crud.list_by_user(user.pk, category=category, provider_id=provider_id)
     if result.code != DBStatus.SUCCESS:
         return _from_db(result)
 
@@ -500,9 +483,7 @@ def list_models(user, data: dict | None = None) -> LLMResult:
                     "models": models,
                 }
             )
-    return LLMResult(
-        LLMStatus.SUCCESS, "ok", {"total": len(rows), "groups": groups}
-    )
+    return LLMResult(LLMStatus.SUCCESS, "ok", {"total": len(rows), "groups": groups})
 
 
 def list_provider_models(user, provider_id: int) -> LLMResult:
@@ -514,9 +495,7 @@ def list_provider_models(user, provider_id: int) -> LLMResult:
     if result.code != DBStatus.SUCCESS:
         return _from_db(result)
     models = [_model_dict(model, provider) for model in result.data]
-    return LLMResult(
-        LLMStatus.SUCCESS, "ok", {"total": len(models), "models": models}
-    )
+    return LLMResult(LLMStatus.SUCCESS, "ok", {"total": len(models), "models": models})
 
 
 def add_manual_model(user, provider_id: int, data: dict | None = None) -> LLMResult:
@@ -656,15 +635,11 @@ def chat_completion(user, data: dict | None = None) -> LLMResult:
 
     try:
         access = _access_from_config(provider)
-        normalized = get_adapter(provider.protocol).chat(
-            access, model.model_id, messages, params
-        )
+        normalized = get_adapter(provider.protocol).chat(access, model.model_id, messages, params)
     except ValueError as exc:
         return LLMResult(LLMStatus.DB_ERR, str(exc))
     except ProviderError as exc:
-        return LLMResult(
-            exc.code, exc.message, {"upstream_status": exc.upstream_status}
-        )
+        return LLMResult(exc.code, exc.message, {"upstream_status": exc.upstream_status})
     except Exception:
         logger.exception("调用对话模型失败：%s", model.model_id)
         return LLMResult(LLMStatus.UNKNOWN_ERR, "调用供应商失败")
@@ -694,7 +669,9 @@ def create_embeddings(user, data: dict | None = None) -> LLMResult:
     if error:
         return error
     if model.category != "embedding":
-        return LLMResult(LLMStatus.MODEL_UNSUPPORTED, "该模型不是嵌入模型，无法通过 embeddings 接口调用")
+        return LLMResult(
+            LLMStatus.MODEL_UNSUPPORTED, "该模型不是嵌入模型，无法通过 embeddings 接口调用"
+        )
 
     inputs, errors = validate_embedding_input(data.get("input"))
     if errors:
@@ -711,9 +688,7 @@ def create_embeddings(user, data: dict | None = None) -> LLMResult:
     except ValueError as exc:
         return LLMResult(LLMStatus.DB_ERR, str(exc))
     except ProviderError as exc:
-        return LLMResult(
-            exc.code, exc.message, {"upstream_status": exc.upstream_status}
-        )
+        return LLMResult(exc.code, exc.message, {"upstream_status": exc.upstream_status})
     except Exception:
         logger.exception("调用嵌入模型失败：%s", model.model_id)
         return LLMResult(LLMStatus.UNKNOWN_ERR, "调用供应商失败")

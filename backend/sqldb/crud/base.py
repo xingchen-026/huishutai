@@ -11,7 +11,7 @@ import functools
 import logging
 from typing import Any, Callable, Generic, ParamSpec, TypeVar
 
-from django.db import DatabaseError, IntegrityError,transaction
+from django.db import DatabaseError, IntegrityError, transaction
 from django.db.models import Model, QuerySet
 
 from sqldb.enums import DBStatus
@@ -22,22 +22,25 @@ logger = logging.getLogger(__name__)
 M = TypeVar("M", bound=Model)
 P = ParamSpec("p")
 
+
 def db_error_handler(func: Callable[P, DBResult]) -> Callable[P, DBResult]:
     """把数据库异常转换成 DBResult，调用方无需关心 ORM 异常。
 
     写操作内部都包了 transaction.atomic：即使被上层事务包裹，
     异常也能在 savepoint 内回滚，不会污染上层事务。
     """
+
     @functools.wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> DBResult:
         try:
             return func(*args, **kwargs)
         except IntegrityError:
-            logger.warning("数据库完整性约束冲突：%s", func.__qualname__,exc_info=True)
+            logger.warning("数据库完整性约束冲突：%s", func.__qualname__, exc_info=True)
             return DBResult(DBStatus.DUPLICATE_ERR, "数据已存在或违反唯一性/外键约束")
         except DatabaseError:
             logger.warning("数据库操作失败：%s", func.__qualname__)
             return DBResult(DBStatus.UNKNOWN_ERR, "数据库操作失败")
+
     return wrapper
 
 
@@ -49,12 +52,13 @@ class BaseCRUD(Generic[M]):
             def __init__(self):
                 super().__init__(User)
     """
-    def __init__(self, model:type[M]) -> None:
+
+    def __init__(self, model: type[M]) -> None:
         self.model = model
-    
+
     def _queryset(self) -> QuerySet[M]:
         return self.model.objects.all()
-    
+
     # ==================== 查 ====================
     @db_error_handler
     def get(self, **filters: Any) -> DBResult:
@@ -69,12 +73,12 @@ class BaseCRUD(Generic[M]):
         if len(objs) > 1:
             return DBResult(DBStatus.UNKNOWN_ERR, "查询结果不唯一，请补充查询条件")
         return DBResult(DBStatus.SUCCESS, "查询成功", objs[0])
-    
+
     @db_error_handler
     def get_by_pk(self, pk: Any) -> DBResult:
         """按主键查询单条记录。"""
         return self.get(pk=pk)
-    
+
     @db_error_handler
     def get_list(
         self,
@@ -98,21 +102,17 @@ class BaseCRUD(Generic[M]):
         else:
             qs = qs[start : start + max(limit, 0)]
         return DBResult(DBStatus.SUCCESS, "查询成功", list(qs))
-    
+
     @db_error_handler
     def exists(self, **filters: Any) -> DBResult:
         """判断是否存在符合条件的记录，data 为 bool。"""
-        return DBResult(
-            DBStatus.SUCCESS, "查询成功", self._queryset().filter(**filters).exists()
-        )
+        return DBResult(DBStatus.SUCCESS, "查询成功", self._queryset().filter(**filters).exists())
 
     @db_error_handler
     def count(self, **filters: Any) -> DBResult:
         """统计符合条件的记录数，data 为 int。"""
-        return DBResult(
-            DBStatus.SUCCESS, "统计成功", self._queryset().filter(**filters).count()
-        )
-        
+        return DBResult(DBStatus.SUCCESS, "统计成功", self._queryset().filter(**filters).count())
+
     # ==================== 增 ====================
     @db_error_handler
     def create(self, **fields: Any) -> DBResult:
@@ -123,7 +123,7 @@ class BaseCRUD(Generic[M]):
         with transaction.atomic():
             obj = self.model.objects.create(**fields)
         return DBResult(DBStatus.SUCCESS, "创建成功", obj)
-    
+
     # ==================== 改 ====================
     @db_error_handler
     def update(self, pk: Any, **fields: Any) -> DBResult:
@@ -134,10 +134,8 @@ class BaseCRUD(Generic[M]):
             updated = self._queryset().filter(pk=pk).update(**fields)
         if not updated:
             return DBResult(DBStatus.NOT_FOUND, "数据不存在，更新失败")
-        return DBResult(
-            DBStatus.SUCCESS, "更新成功", self._queryset().filter(pk=pk).first()
-        )
-    
+        return DBResult(DBStatus.SUCCESS, "更新成功", self._queryset().filter(pk=pk).first())
+
     # ==================== 删 ====================
     @db_error_handler
     def delete(self, pk: Any) -> DBResult:

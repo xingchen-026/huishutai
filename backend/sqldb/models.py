@@ -6,18 +6,16 @@
 
 from django.db import models
 
+
 class User(models.Model):
     """用户表"""
-    username = models.CharField(
-        max_length=50, unique=True, verbose_name='用户名'
-    )
-    password = models.CharField(
-        max_length=128, verbose_name='密码'
-    )
+
+    username = models.CharField(max_length=50, unique=True, verbose_name="用户名")
+    password = models.CharField(max_length=128, verbose_name="密码")
 
     class Meta:
-        db_table = 'user'          # 指定数据库表名
-        verbose_name = '用户'
+        db_table = "user"  # 指定数据库表名
+        verbose_name = "用户"
         verbose_name_plural = verbose_name
 
     @property
@@ -30,35 +28,30 @@ class User(models.Model):
 
     def __str__(self) -> str:
         return self.username
-    
-    
+
+
 class UserInfo(models.Model):
     """用户信息表"""
+
     GENDER_CHOICES = (
-        ('male', '男'),
-        ('female', '女'),
-        ('unknown', '未知'),
+        ("male", "男"),
+        ("female", "女"),
+        ("unknown", "未知"),
     )
 
     # 一对一关联用户表（“用户名”通过 user.username 获取）
     user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name='info',
-        verbose_name='用户'
+        User, on_delete=models.CASCADE, related_name="info", verbose_name="用户"
     )
-    email = models.EmailField(max_length=100, verbose_name='邮箱')
-    phone = models.CharField(max_length=20, verbose_name='手机号')
+    email = models.EmailField(max_length=100, verbose_name="邮箱")
+    phone = models.CharField(max_length=20, verbose_name="手机号")
     gender = models.CharField(
-        max_length=10,
-        choices=GENDER_CHOICES,
-        default='unknown',
-        verbose_name='性别'
+        max_length=10, choices=GENDER_CHOICES, default="unknown", verbose_name="性别"
     )
 
     class Meta:
-        db_table = 'user_info'
-        verbose_name = '用户信息'
+        db_table = "user_info"
+        verbose_name = "用户信息"
         verbose_name_plural = verbose_name
 
 
@@ -94,9 +87,7 @@ class UploadedFile(models.Model):
             models.Index(fields=["user", "file_hash"], name="uploaded_user_hash_idx"),
         ]
         constraints = [
-            models.UniqueConstraint(
-                fields=["bucket", "object_key"], name="uniq_uploaded_object"
-            ),
+            models.UniqueConstraint(fields=["bucket", "object_key"], name="uniq_uploaded_object"),
         ]
 
 
@@ -114,7 +105,9 @@ class LLMProviderConfig(models.Model):
     protocol = models.CharField(max_length=20, verbose_name="接口协议")
     base_url = models.CharField(max_length=500, verbose_name="供应商地址")
     api_key_encrypted = models.TextField(blank=True, default="", verbose_name="加密后的 API Key")
-    api_key_masked = models.CharField(max_length=64, blank=True, default="", verbose_name="脱敏 API Key")
+    api_key_masked = models.CharField(
+        max_length=64, blank=True, default="", verbose_name="脱敏 API Key"
+    )
     enabled = models.BooleanField(default=True, verbose_name="是否启用")
     last_synced_at = models.DateTimeField(null=True, blank=True, verbose_name="最近同步时间")
     last_sync_error = models.CharField(

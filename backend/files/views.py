@@ -40,7 +40,5 @@ def file_upload(request):
     result = save_uploaded_file(uploaded_file, request.user)
     return Response(
         result.to_dict(),
-        status=_HTTP_STATUS.get(
-            result.code, http_status.HTTP_500_INTERNAL_SERVER_ERROR
-        ),
+        status=_HTTP_STATUS.get(result.code, http_status.HTTP_500_INTERNAL_SERVER_ERROR),
     )

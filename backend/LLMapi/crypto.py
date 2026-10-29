@@ -26,9 +26,7 @@ def _get_fernet() -> Fernet:
     if configured:
         raw_key = configured.encode("utf-8")
     else:
-        digest = hashlib.sha256(
-            f"llmapi-key:{settings.SECRET_KEY}".encode("utf-8")
-        ).digest()
+        digest = hashlib.sha256(f"llmapi-key:{settings.SECRET_KEY}".encode("utf-8")).digest()
         raw_key = base64.urlsafe_b64encode(digest)
         logger.warning(
             "LLMAPI_ENCRYPTION_KEY 未配置，当前使用 SECRET_KEY 派生密钥；"

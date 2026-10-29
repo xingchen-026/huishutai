@@ -115,14 +115,33 @@ def build_param_spec(protocol: str, category: str, model_id: str) -> list[dict]:
         if protocol == "gemini":
             return [
                 _param(
-                    "task_type", "enum",
-                    enum=["RETRIEVAL_QUERY", "RETRIEVAL_DOCUMENT", "SEMANTIC_SIMILARITY", "CLASSIFICATION", "CLUSTERING"],
+                    "task_type",
+                    "enum",
+                    enum=[
+                        "RETRIEVAL_QUERY",
+                        "RETRIEVAL_DOCUMENT",
+                        "SEMANTIC_SIMILARITY",
+                        "CLASSIFICATION",
+                        "CLUSTERING",
+                    ],
                     description="Gemini 嵌入任务类型",
                 ),
             ]
         return [
-            _param("dimensions", "integer", minimum=1, maximum=8192, description="输出向量维度（部分模型支持）"),
-            _param("encoding_format", "enum", default="float", enum=["float", "base64"], description="向量编码格式"),
+            _param(
+                "dimensions",
+                "integer",
+                minimum=1,
+                maximum=8192,
+                description="输出向量维度（部分模型支持）",
+            ),
+            _param(
+                "encoding_format",
+                "enum",
+                default="float",
+                enum=["float", "base64"],
+                description="向量编码格式",
+            ),
             _param("user", "string", description="调用方标识"),
         ]
 
@@ -133,32 +152,76 @@ def build_param_spec(protocol: str, category: str, model_id: str) -> list[dict]:
 
     if protocol == "anthropic":
         return [
-            _param("temperature", "number", default=1.0, minimum=0.0, maximum=1.0, description="采样温度"),
+            _param(
+                "temperature",
+                "number",
+                default=1.0,
+                minimum=0.0,
+                maximum=1.0,
+                description="采样温度",
+            ),
             _param("top_p", "number", default=1.0, minimum=0.0, maximum=1.0, description="核采样"),
             _param("top_k", "integer", minimum=1, maximum=500, description="Top-K 采样"),
-            _param("max_tokens", "integer", default=1024, required=True, minimum=1, maximum=limit, description="最大输出 token 数（Anthropic 必填）"),
+            _param(
+                "max_tokens",
+                "integer",
+                default=1024,
+                required=True,
+                minimum=1,
+                maximum=limit,
+                description="最大输出 token 数（Anthropic 必填）",
+            ),
             _param("stop", "string_list", description="停止词列表"),
         ]
 
     if protocol == "gemini":
         return [
-            _param("temperature", "number", default=1.0, minimum=0.0, maximum=2.0, description="采样温度"),
+            _param(
+                "temperature",
+                "number",
+                default=1.0,
+                minimum=0.0,
+                maximum=2.0,
+                description="采样温度",
+            ),
             _param("top_p", "number", default=1.0, minimum=0.0, maximum=1.0, description="核采样"),
             _param("top_k", "integer", minimum=1, maximum=200, description="Top-K 采样"),
-            _param("max_tokens", "integer", default=2048, minimum=1, maximum=limit, description="最大输出 token 数"),
+            _param(
+                "max_tokens",
+                "integer",
+                default=2048,
+                minimum=1,
+                maximum=limit,
+                description="最大输出 token 数",
+            ),
             _param("stop", "string_list", description="停止词列表"),
         ]
 
     # openai 兼容协议
     return [
-        _param("temperature", "number", default=1.0, minimum=0.0, maximum=2.0, description="采样温度"),
+        _param(
+            "temperature", "number", default=1.0, minimum=0.0, maximum=2.0, description="采样温度"
+        ),
         _param("top_p", "number", default=1.0, minimum=0.0, maximum=1.0, description="核采样"),
-        _param("max_tokens", "integer", minimum=1, maximum=limit, description="最大输出 token 数（不传用供应商默认）"),
+        _param(
+            "max_tokens",
+            "integer",
+            minimum=1,
+            maximum=limit,
+            description="最大输出 token 数（不传用供应商默认）",
+        ),
         _param("presence_penalty", "number", default=0.0, minimum=-2.0, maximum=2.0),
         _param("frequency_penalty", "number", default=0.0, minimum=-2.0, maximum=2.0),
         _param("stop", "string_list", description="停止词列表"),
         _param("seed", "integer", minimum=0, maximum=2147483647),
-        _param("n", "integer", default=1, minimum=1, maximum=16, description="生成条数（网关只返回第一条）"),
+        _param(
+            "n",
+            "integer",
+            default=1,
+            minimum=1,
+            maximum=16,
+            description="生成条数（网关只返回第一条）",
+        ),
         _param("user", "string", description="调用方标识"),
     ]
 
@@ -189,8 +252,10 @@ def validate_messages(messages: Any) -> tuple[list[dict], list[str]]:
 def validate_embedding_input(value: Any) -> tuple[list[str], list[str]]:
     if isinstance(value, str):
         return ([value], []) if value.strip() else ([], ["input 不能为空"])
-    if isinstance(value, list) and value and all(
-        isinstance(item, str) and item.strip() for item in value
+    if (
+        isinstance(value, list)
+        and value
+        and all(isinstance(item, str) and item.strip() for item in value)
     ):
         return value, []
     return [], ["input 必须是字符串，或非空字符串数组"]

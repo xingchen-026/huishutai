@@ -54,9 +54,7 @@ def provider_detail(request, provider_id: int):
     if request.method == "GET":
         return _respond(services.get_provider(request.user, provider_id))
     if request.method == "PATCH":
-        return _respond(
-            services.update_provider(request.user, provider_id, _body(request))
-        )
+        return _respond(services.update_provider(request.user, provider_id, _body(request)))
     return _respond(services.delete_provider(request.user, provider_id))
 
 
@@ -71,9 +69,7 @@ def provider_models(request, provider_id: int):
     """GET 该供应商下的模型；POST 手动登记模型（拉不到列表时使用）。"""
     if request.method == "GET":
         return _respond(services.list_provider_models(request.user, provider_id))
-    return _respond(
-        services.add_manual_model(request.user, provider_id, _body(request))
-    )
+    return _respond(services.add_manual_model(request.user, provider_id, _body(request)))
 
 
 @api_view(["GET"])

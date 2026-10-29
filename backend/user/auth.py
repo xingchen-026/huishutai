@@ -19,6 +19,7 @@ from sqldb.models import User
 TOKEN_SALT = "huishutai.user.token"
 TOKEN_MAX_AGE = 60 * 60 * 24 * 7  # 7 天
 
+
 def issue_token(user_id: int) -> str:
     """登录/注册成功后签发 token。"""
     return signing.dumps({"uid": user_id}, salt=TOKEN_SALT)
@@ -35,6 +36,7 @@ def parse_token(token: str) -> int:
     if not isinstance(uid, int):
         raise AuthenticationFailed("登录状态无效，请重新登录")
     return uid
+
 
 class SignedTokenAuthentication(BaseAuthentication):
     """从 Authorization: Bearer <token> 恢复当前用户。"""
@@ -59,6 +61,7 @@ class SignedTokenAuthentication(BaseAuthentication):
     def authenticate_header(self, request) -> str:
         # 返回非空值，DRF 才会对未登录请求返回 401 而不是 403
         return self.keyword
+
 
 class IsLoginUser(BasePermission):
     """只允许已登录用户访问。"""

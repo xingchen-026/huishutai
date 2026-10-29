@@ -6,6 +6,7 @@
   - 不返回 DBResult，不判断"用户名重复该返回什么 code"，那些在 views 里做。
   - 查不到一律返回 None，由调用方自己决定怎么处理。
 """
+
 from sqldb.models import User, UserInfo
 
 

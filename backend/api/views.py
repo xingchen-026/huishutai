@@ -20,9 +20,7 @@ from sqldb.result import DBResult
 _IGNORED_METHODS = {"options", "head", "trace"}
 
 
-def _walk_patterns(
-    resolver: URLResolver, prefix: str = ""
-) -> Iterator[tuple[str, URLPattern]]:
+def _walk_patterns(resolver: URLResolver, prefix: str = "") -> Iterator[tuple[str, URLPattern]]:
     """递归遍历 URLconf，产出 (完整路径, URLPattern)。"""
     for entry in resolver.url_patterns:
         path = prefix + str(entry.pattern)

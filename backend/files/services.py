@@ -59,9 +59,7 @@ def save_uploaded_file(uploaded_file: UploadedFile, user) -> DBResult:
 
     # 对象键：uploads/{user_id}/{YYYY}/{MM}/{uuid}{ext}
     today = timezone.localdate()
-    object_key = (
-        f"uploads/{user.pk}/{today:%Y}/{today:%m}/{uuid.uuid4().hex}{suffix}"
-    )
+    object_key = f"uploads/{user.pk}/{today:%Y}/{today:%m}/{uuid.uuid4().hex}{suffix}"
 
     # 1) 流式计算 SHA-256，读完复位文件指针
     digest = hashlib.sha256()

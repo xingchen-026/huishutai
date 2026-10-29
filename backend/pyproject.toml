@@ -6,7 +6,6 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "asgiref==3.12.1",
-    "black>=26.10.1",
     "cryptography==50.0.2",
     "django==6.1.2",
     "djangorestframework==3.18.3",
@@ -18,3 +17,30 @@ dependencies = [
     "sqlparse==0.6.0",
     "tzdata==2026.5",
 ]
+
+[dependency-groups]
+dev = [
+    "pre-commit==4.7.0",
+    "ruff==0.17.3",
+]
+
+# ==================== Ruff（格式化 + Lint） ====================
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+# 迁移文件是 Django 生成的，保持原样，避免无意义 diff
+extend-exclude = ["**/migrations", ".venv"]
+
+[tool.ruff.lint]
+# 先采用低噪音规则，保证能平稳接入 CI；后续可加 B（bugbear）、UP（pyupgrade）
+select = ["E4", "E7", "E9", "F", "I"]
+ignore = ["E501"]  # 行宽由 formatter 控制
+
+[tool.ruff.lint.isort]
+known-first-party = [
+    "api", "config", "files", "LLMapi", "RAG", "sqldb", "user", "vectordb",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

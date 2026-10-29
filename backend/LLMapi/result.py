@@ -29,4 +29,3 @@ class LLMResult:
 
     def to_dict(self) -> dict[str, Any]:
         return {"code": int(self.code), "message": self.message, "data": self.data}
-    

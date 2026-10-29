@@ -1,4 +1,5 @@
 """测试公共工具：用户、供应商、模型构造与 HTTP 调用辅助。"""
+
 from __future__ import annotations
 
 import json
@@ -7,7 +8,7 @@ from django.contrib.auth.hashers import make_password
 
 from LLMapi import crypto
 from LLMapi.model_meta import build_param_spec
-from sqldb.models import LLMProviderConfig, LLMModel, User
+from sqldb.models import LLMModel, LLMProviderConfig, User
 from user.auth import issue_token
 
 
@@ -81,6 +82,4 @@ def api(client, method: str, path: str, user: User | None = None, payload=None):
     if user is not None:
         kwargs.update(bearer(user))
     body = json.dumps(payload) if payload is not None else None
-    return getattr(client, method)(
-        path, data=body, content_type="application/json", **kwargs
-    )
+    return getattr(client, method)(path, data=body, content_type="application/json", **kwargs)

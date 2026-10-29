@@ -4,6 +4,7 @@
     set DJANGO_SETTINGS_MODULE=tests.settings   # Windows PowerShell: $env:DJANGO_SETTINGS_MODULE="tests.settings"
     python manage.py test tests -v 2
 """
+
 import logging
 
 from cryptography.fernet import Fernet
