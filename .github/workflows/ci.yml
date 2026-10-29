@@ -143,4 +143,4 @@ jobs:
           tags: huishutai-frontend:ci
 
       - name: 校验 Nginx 配置
-        run: docker run --rm --entrypoint nginx huishutai-frontend:ci -t
+        run: docker run --rm --add-host backend:127.0.0.1 --entrypoint nginx huishutai-frontend:ci -t
