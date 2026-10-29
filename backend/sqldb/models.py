@@ -98,3 +98,69 @@ class UploadedFile(models.Model):
                 fields=["bucket", "object_key"], name="uniq_uploaded_object"
             ),
         ]
+
+
+class LLMProviderConfig(models.Model):
+    """用户配置的大模型供应商接入信息（API Key 加密存储）。"""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="llm_providers",
+        verbose_name="归属用户",
+    )
+    template_code = models.CharField(max_length=64, verbose_name="供应商模板")
+    name = models.CharField(max_length=100, verbose_name="配置名称")
+    protocol = models.CharField(max_length=20, verbose_name="接口协议")
+    base_url = models.CharField(max_length=500, verbose_name="供应商地址")
+    api_key_encrypted = models.TextField(blank=True, default="", verbose_name="加密后的 API Key")
+    api_key_masked = models.CharField(max_length=64, blank=True, default="", verbose_name="脱敏 API Key")
+    enabled = models.BooleanField(default=True, verbose_name="是否启用")
+    last_synced_at = models.DateTimeField(null=True, blank=True, verbose_name="最近同步时间")
+    last_sync_error = models.CharField(
+        max_length=500, blank=True, default="", verbose_name="最近同步失败原因"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "llm_provider_config"
+        verbose_name = "大模型供应商配置"
+        verbose_name_plural = verbose_name
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["user", "name"], name="uniq_llm_provider_name"),
+        ]
+
+
+class LLMModel(models.Model):
+    """从供应商在线拉取、或用户手动登记的模型（含调用参数规格）。"""
+
+    provider = models.ForeignKey(
+        LLMProviderConfig,
+        on_delete=models.CASCADE,
+        related_name="models",
+        verbose_name="供应商配置",
+    )
+    model_id = models.CharField(max_length=200, verbose_name="供应商模型 ID")
+    display_name = models.CharField(max_length=200, blank=True, default="", verbose_name="展示名称")
+    category = models.CharField(max_length=20, default="chat", verbose_name="模型分类")
+    param_spec = models.JSONField(default=list, blank=True, verbose_name="调用参数规格")
+    source = models.CharField(max_length=10, default="auto", verbose_name="来源（auto/manual）")
+    enabled = models.BooleanField(default=True, verbose_name="是否启用")
+    raw = models.JSONField(default=dict, blank=True, verbose_name="供应商原始信息")
+    synced_at = models.DateTimeField(null=True, blank=True, verbose_name="最近拉取时间")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "llm_model"
+        verbose_name = "大模型"
+        verbose_name_plural = verbose_name
+        ordering = ["category", "model_id"]
+        constraints = [
+            models.UniqueConstraint(fields=["provider", "model_id"], name="uniq_llm_model"),
+        ]
+        indexes = [
+            models.Index(fields=["provider", "category"], name="llm_model_provider_cat_idx"),
+        ]

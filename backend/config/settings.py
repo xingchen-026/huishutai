@@ -192,3 +192,19 @@ ALLOWED_UPLOAD_EXTENSIONS = {
 
 # 超过 5MB 的请求体落临时文件，避免占进程内存（Django 默认 2.5MB）
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
+
+# ==================== LLM 模型供应（LLMapi） ====================
+# API Key 加密密钥：Fernet key（base64 urlsafe，32 字节）。
+# 留空时由 SECRET_KEY 派生（仅开发方便；生产必须显式配置，且更换后旧 Key 无法解密）。
+LLMAPI_ENCRYPTION_KEY = os.environ.get("LLMAPI_ENCRYPTION_KEY", "")
+
+# 调用供应商接口超时（秒）
+LLMAPI_HTTP_TIMEOUT = float(os.environ.get("LLMAPI_HTTP_TIMEOUT", "30"))
+
+# 单次模型列表同步的最大条数
+LLMAPI_MAX_MODELS = int(os.environ.get("LLMAPI_MAX_MODELS", "1000"))
+
+# 是否允许配置内网/本机 base_url（本地 Ollama 需要 true；生产建议 false 防 SSRF）
+LLMAPI_ALLOW_PRIVATE_BASE_URL = os.environ.get(
+    "LLMAPI_ALLOW_PRIVATE_BASE_URL", "true"
+).lower() in ("1", "true", "yes", "on")

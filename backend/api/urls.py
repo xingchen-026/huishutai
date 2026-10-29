@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from api.views import route_list
 from files.views import file_upload
@@ -20,4 +20,5 @@ urlpatterns = [
     path("user/check-username/", username_available, name="user-check-username"),
     path("files/upload/", file_upload, name="file-upload"),
     path("routes/", route_list, name="route-list"),
+    path("llm/", include("LLMapi.urls")),
 ]

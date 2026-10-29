@@ -146,6 +146,9 @@ services:
         MINIO_BUCKET: ${MINIO_BUCKET:-huishutai-files}
         MINIO_PRESIGN_EXPIRY: ${MINIO_PRESIGN_EXPIRY:-3600}
         MAX_UPLOAD_SIZE: ${MAX_UPLOAD_SIZE:-52428800}
+        LLMAPI_ENCRYPTION_KEY: ${LLMAPI_ENCRYPTION_KEY:-}
+        LLMAPI_HTTP_TIMEOUT: ${LLMAPI_HTTP_TIMEOUT:-30}
+        LLMAPI_ALLOW_PRIVATE_BASE_URL: ${LLMAPI_ALLOW_PRIVATE_BASE_URL:-true}
     depends_on:
       db:
         condition: service_healthy
