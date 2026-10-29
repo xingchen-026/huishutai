@@ -1,28 +1,39 @@
-# 创建并写入 .gitignore 内容
-@"
-# --- Python / Django ---
+# ---------- Python / Django ----------
 __pycache__/
 *.py[cod]
 *.so
-.env
 .venv/
 venv/
+env/
+.env
+*.local
 db.sqlite3
+
+# 本地运行产生的上传文件
+backend/media/
 /media/
 /staticfiles/
 
-# --- Node / Vue ---
+# ---------- Node / Vue ----------
 node_modules/
-/dist/
+/frontend/dist/
+/frontend/dist-ssr/
+/frontend/coverage/
+*.tsbuildinfo
 .vite/
-*.local
+.eslintcache
 
-# --- IDE / OS ---
+# ---------- 工具缓存 ----------
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.cache/
+
+# ---------- IDE / OS ----------
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 
-# --- Logs ---
+# ---------- 日志 ----------
 *.log
-"@ | Out-File -FilePath .gitignore -Encoding utf8

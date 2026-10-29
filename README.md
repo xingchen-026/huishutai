@@ -1,5 +1,7 @@
 # 汇书台（huishutai）
 
+[![CI](https://github.com/xingchen-026/huishutai/actions/workflows/ci.yml/badge.svg?branch=devlop)](https://github.com/xingchen-026/huishutai/actions/workflows/ci.yml)
+
 > 面向 AI 应用落地的技术整合实践项目：把 RAG、Agent、文生图、文生视频等 AI 能力，与用户管理、文件存储、模型供应等基础技术服务结合，沉淀一套可复用的应用落地方案。
 
 ## 项目简介
@@ -391,6 +393,26 @@ DJANGO_SETTINGS_MODULE=tests.settings uv run python -B manage.py test tests -v 2
 如本机有可用的 PostgreSQL，也可使用默认配置运行：`uv run python manage.py test tests -v 2`。
 
 当前结果：共 **128 个用例**，运行结果为 OK（其中 4 个以 `expectedFailure` 标记记录已知缺陷：供应商同步未写 `last_synced_at`、`model_id` 强转接受小数/布尔、`rerank` 模型被误分类为 `embedding`、`base_url` 带 query/fragment 未被拒绝），详见 [backend/tests/README.md](backend/tests/README.md)。用户 / 文件 / 向量库模块目前仍是占位测试。
+
+## 代码质量与 CI
+
+### 本地检查
+
+```bash
+# 后端（backend/）
+uv sync
+uv run ruff format --check .
+uv run ruff check .
+uv run python manage.py check
+uv run python manage.py test
+
+# 前端（frontend/）
+npm ci
+npm run lint:check
+npm run format:check
+npm run type-check
+npm run build
+```
 
 ## 环境变量
 

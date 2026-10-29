@@ -1,0 +1,25 @@
+# 安装：uv run --project backend pre-commit install
+# 全量检查：uv run --project backend pre-commit run --all-files
+fail_fast: false
+
+repos:
+  - repo: local
+    hooks:
+      - id: backend-ruff-check
+        name: backend: ruff check --fix
+        entry: uv run --project backend ruff check --fix
+        language: system
+        files: ^backend/.*\.py$
+
+      - id: backend-ruff-format
+        name: backend: ruff format
+        entry: uv run --project backend ruff format
+        language: system
+        files: ^backend/.*\.py$
+
+      - id: frontend-prettier
+        name: frontend: prettier --write
+        entry: node frontend/node_modules/prettier/bin/prettier.cjs --write
+        language: system
+        files: ^frontend/.*\.(js|mjs|cjs|ts|vue|json|css|html|md)$
+        exclude: ^frontend/package-lock\.json$

@@ -1,0 +1,146 @@
+name: CI
+
+on:
+  push:
+    branches: [devlop, main]
+  pull_request:
+    branches: [devlop, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ==================== 后端：Ruff + Django 检查 + 测试 ====================
+  backend:
+    name: Backend checks & tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: huishutai
+          POSTGRES_USER: huishutai
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U huishutai -d huishutai"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      POSTGRES_DB: huishutai
+      POSTGRES_USER: huishutai
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: "5432"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: 校验 uv.lock 是否同步
+        run: uv lock --check
+
+      - name: 安装后端依赖
+        run: uv sync --frozen
+
+      - name: Ruff 格式检查
+        run: uv run ruff format --check .
+
+      - name: Ruff Lint
+        run: uv run ruff check .
+
+      - name: Django 系统检查
+        run: uv run python manage.py check
+
+      - name: 迁移文件是否齐全
+        run: uv run python manage.py makemigrations --check --dry-run
+
+      - name: 运行后端测试
+        run: uv run python manage.py test --verbosity 2
+
+  # ==================== 前端：Lint + 格式 + 类型 + 构建 ====================
+  frontend:
+    name: Frontend checks & build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 安装前端依赖
+        run: npm ci
+
+      - name: ESLint
+        run: npm run lint:check
+
+      - name: Prettier 格式检查
+        run: npm run format:check
+
+      - name: 类型检查
+        run: npm run type-check
+
+      - name: 生产构建
+        run: npm run build
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          retention-days: 7
+
+  # ==================== Docker 镜像构建 + 冒烟检查 ====================
+  docker:
+    name: Docker image build
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: 构建后端镜像
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: false
+          load: true
+          tags: huishutai-backend:ci
+
+      - name: 后端镜像冒烟检查
+        run: docker run --rm --entrypoint python huishutai-backend:ci manage.py check
+
+      - name: 构建前端镜像
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: false
+          load: true
+          tags: huishutai-frontend:ci
+
+      - name: 校验 Nginx 配置
+        run: docker run --rm --entrypoint nginx huishutai-frontend:ci -t
