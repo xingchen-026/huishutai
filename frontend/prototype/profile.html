@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>个人中心 · 汇书台原型</title>
+    <link rel="stylesheet" href="assets/css/tokens.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <link rel="stylesheet" href="assets/css/pages.css" />
+    <style>
+      .identity-card {
+        text-align: center;
+        padding: 28px 22px 22px;
+      }
+      .identity-avatar {
+        margin: 0 auto 14px;
+      }
+      .identity-name {
+        font-size: var(--fs-xl);
+        font-weight: 650;
+      }
+      .identity-handle {
+        margin-top: 2px;
+        color: var(--text-3);
+        font-family: var(--font-mono);
+        font-size: var(--fs-sm);
+      }
+      .identity-foot {
+        margin-top: 22px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+        color: var(--text-3);
+        font-size: var(--fs-xs);
+      }
+      .profile-view .kv {
+        grid-template-columns: 96px minmax(0, 1fr);
+        gap: 14px 18px;
+      }
+    </style>
+  </head>
+  <body data-page="profile" data-title="个人中心" data-group="账号">
+    <div class="app-shell">
+      <aside class="sidebar" id="app-sidebar"></aside>
+      <div class="shell-main">
+        <header class="topbar" id="app-topbar"></header>
+
+        <main class="page">
+          <div class="page-head">
+            <div class="page-head-main">
+              <h1 class="page-title">个人中心</h1>
+              <p class="page-desc">管理账号资料与密码。</p>
+            </div>
+            <div class="page-actions" id="page-actions">
+              <button class="btn btn-secondary" type="button" id="btn-goto-password">
+                修改密码
+              </button>
+              <button class="btn btn-primary" type="button" id="btn-edit-profile">
+                <span class="icon" data-icon="edit"></span>
+                编辑资料
+              </button>
+            </div>
+          </div>
+
+          <div class="split">
+            <section class="card identity-card">
+              <span class="avatar avatar-lg identity-avatar">陈</span>
+              <div class="identity-name">陈星</div>
+              <div class="identity-handle">@xingchen</div>
+              <div class="identity-foot">
+                加入于 2026-10-21<br />
+                签名 Token · 7 天有效
+              </div>
+            </section>
+
+            <div class="col" style="gap: 18px">
+              <section class="card" id="profile-card">
+                <div class="card-head">
+                  <div class="card-head-main">
+                    <h3 class="card-title">个人资料</h3>
+                  </div>
+                  <div class="card-extra">
+                    <span class="badge badge-dashed" id="profile-mode-badge">查看</span>
+                  </div>
+                </div>
+
+                <div class="card-body profile-view" id="profile-view">
+                  <dl class="kv">
+                    <dt>用户名</dt>
+                    <dd class="mono">xingchen</dd>
+                    <dt>邮箱</dt>
+                    <dd id="view-email">xingchen@example.com</dd>
+                    <dt>手机号</dt>
+                    <dd id="view-phone">138 0013 8000</dd>
+                    <dt>性别</dt>
+                    <dd id="view-gender">男</dd>
+                  </dl>
+                </div>
+
+                <div class="card-body" id="profile-form" hidden>
+                  <form id="profile-edit-form" novalidate>
+                    <div class="form-grid">
+                      <div class="field">
+                        <label class="field-label" for="edit-email">邮箱</label>
+                        <input class="input" id="edit-email" type="email" placeholder="选填" />
+                      </div>
+                      <div class="field">
+                        <label class="field-label" for="edit-phone">手机号</label>
+                        <input class="input" id="edit-phone" placeholder="选填，11 位手机号" />
+                      </div>
+                      <div class="field">
+                        <label class="field-label" for="edit-gender">性别</label>
+                        <div class="select-wrap">
+                          <select class="select" id="edit-gender">
+                            <option value="male">男</option>
+                            <option value="female">女</option>
+                            <option value="unknown">未知</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="field-error mt-3" id="profile-error" hidden></p>
+                    <div class="form-actions mt-4">
+                      <button class="btn" type="submit">保存</button>
+                      <button class="btn btn-secondary" type="button" id="btn-cancel-edit">
+                        取消
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </section>
+
+              <section class="card" id="password-card">
+                <div class="card-head">
+                  <div class="card-head-main">
+                    <h3 class="card-title">修改密码</h3>
+                  </div>
+                  <div class="card-extra">
+                    <span class="fs-xs subtle">修改后需重新登录</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <form id="password-form" novalidate>
+                    <div class="form-grid">
+                      <div class="field">
+                        <label class="field-label" for="old-password">原密码</label>
+                        <input
+                          class="input"
+                          id="old-password"
+                          type="password"
+                          autocomplete="current-password"
+                        />
+                      </div>
+                      <div class="field">
+                        <label class="field-label" for="new-password">新密码</label>
+                        <input
+                          class="input"
+                          id="new-password"
+                          type="password"
+                          autocomplete="new-password"
+                          placeholder="6–128 位"
+                        />
+                      </div>
+                      <div class="field">
+                        <label class="field-label" for="confirm-password">确认新密码</label>
+                        <input
+                          class="input"
+                          id="confirm-password"
+                          type="password"
+                          autocomplete="new-password"
+                        />
+                      </div>
+                    </div>
+                    <p class="field-error mt-3" id="password-error" hidden></p>
+                    <div class="form-actions mt-4">
+                      <button class="btn" type="submit">修改密码</button>
+                    </div>
+                  </form>
+                </div>
+              </section>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="assets/js/shell.js"></script>
+    <script>
+      ;(function () {
+        var view = document.getElementById('profile-view')
+        var form = document.getElementById('profile-form')
+        var modeBadge = document.getElementById('profile-mode-badge')
+        var editBtn = document.getElementById('btn-edit-profile')
+        var error = document.getElementById('profile-error')
+
+        var state = {
+          email: 'xingchen@example.com',
+          phone: '13800138000',
+          gender: 'male',
+        }
+
+        function renderView() {
+          document.getElementById('view-email').textContent = state.email || '未填写'
+          document.getElementById('view-phone').textContent = state.phone
+            ? state.phone.replace(/^(\d{3})(\d{4})(\d{4})$/, '$1 $2 $3')
+            : '未填写'
+          document.getElementById('view-gender').textContent =
+            state.gender === 'male' ? '男' : state.gender === 'female' ? '女' : '未知'
+        }
+
+        function enterEdit() {
+          document.getElementById('edit-email').value = state.email
+          document.getElementById('edit-phone').value = state.phone
+          document.getElementById('edit-gender').value = state.gender
+          error.hidden = true
+          view.hidden = true
+          form.hidden = false
+          modeBadge.textContent = '编辑'
+          modeBadge.className = 'badge badge-info'
+        }
+
+        function exitEdit() {
+          view.hidden = false
+          form.hidden = true
+          modeBadge.textContent = '查看'
+          modeBadge.className = 'badge badge-dashed'
+        }
+
+        editBtn.addEventListener('click', function () {
+          if (!form.hidden) {
+            exitEdit()
+            return
+          }
+          enterEdit()
+        })
+        document.getElementById('btn-cancel-edit').addEventListener('click', exitEdit)
+
+        document.getElementById('btn-goto-password').addEventListener('click', function () {
+          document
+            .getElementById('password-card')
+            .scrollIntoView({ behavior: 'smooth', block: 'center' })
+          document.getElementById('old-password').focus()
+        })
+
+        document.getElementById('profile-edit-form').addEventListener('submit', function (e) {
+          e.preventDefault()
+          var email = document.getElementById('edit-email').value.trim()
+          var phone = document.getElementById('edit-phone').value.trim()
+          var gender = document.getElementById('edit-gender').value
+          error.hidden = true
+          if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            error.textContent = '邮箱格式不正确'
+            error.hidden = false
+            return
+          }
+          if (phone && !/^1[3-9]\d{9}$/.test(phone)) {
+            error.textContent = '手机号格式不正确'
+            error.hidden = false
+            return
+          }
+          state.email = email
+          state.phone = phone
+          state.gender = gender
+          renderView()
+          exitEdit()
+          AppUI.toast('资料已更新（演示）', 'success')
+        })
+
+        document.getElementById('password-form').addEventListener('submit', function (e) {
+          e.preventDefault()
+          var pwdError = document.getElementById('password-error')
+          var oldPwd = document.getElementById('old-password').value
+          var newPwd = document.getElementById('new-password').value
+          var confirmPwd = document.getElementById('confirm-password').value
+          pwdError.hidden = true
+          if (!oldPwd) {
+            pwdError.textContent = '请输入原密码'
+            pwdError.hidden = false
+            return
+          }
+          if (newPwd.length < 6) {
+            pwdError.textContent = '新密码至少 6 位'
+            pwdError.hidden = false
+            return
+          }
+          if (newPwd !== confirmPwd) {
+            pwdError.textContent = '两次输入的新密码不一致'
+            pwdError.hidden = false
+            return
+          }
+          AppUI.toast('密码修改成功，请重新登录', 'success')
+          setTimeout(function () {
+            location.href = 'login.html'
+          }, 1200)
+        })
+
+        renderView()
+      })()
+    </script>
+  </body>
+</html>

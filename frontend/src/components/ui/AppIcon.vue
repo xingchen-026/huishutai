@@ -1,0 +1,103 @@
+<script setup lang="ts">
+import { computed, type Component } from 'vue'
+import {
+  AlertCircle,
+  AlertTriangle,
+  ArrowRight,
+  BookOpen,
+  Check,
+  ChevronDown,
+  Circle,
+  CircleCheck,
+  CircleX,
+  Clock,
+  Copy,
+  Cpu,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  FileText,
+  Film,
+  Folder,
+  Home,
+  Image,
+  Info,
+  KeyRound,
+  Layers,
+  LoaderCircle,
+  Lock,
+  LogOut,
+  MessageSquare,
+  Moon,
+  Package,
+  PanelLeft,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Search,
+  Shield,
+  SlidersHorizontal,
+  Sparkles,
+  Sun,
+  Trash2,
+  Upload,
+  User,
+  X,
+} from '@lucide/vue'
+
+const props = defineProps<{ name: string }>()
+
+/** 语义名 → Lucide 组件；新增图标在这里补一行即可 */
+const ICONS: Record<string, Component> = {
+  home: Home,
+  book: BookOpen,
+  cpu: Cpu,
+  upload: Upload,
+  trash: Trash2,
+  plus: Plus,
+  refresh: RefreshCw,
+  search: Search,
+  x: X,
+  eye: Eye,
+  'eye-off': EyeOff,
+  edit: Pencil,
+  user: User,
+  lock: Lock,
+  'log-out': LogOut,
+  sun: Sun,
+  moon: Moon,
+  'chevron-down': ChevronDown,
+  'arrow-right': ArrowRight,
+  info: Info,
+  'alert-circle': AlertCircle,
+  'alert-triangle': AlertTriangle,
+  'circle-check': CircleCheck,
+  'circle-x': CircleX,
+  sliders: SlidersHorizontal,
+  'file-text': FileText,
+  key: KeyRound,
+  loader: LoaderCircle,
+  'panel-left': PanelLeft,
+  'external-link': ExternalLink,
+  copy: Copy,
+  folder: Folder,
+  layers: Layers,
+  image: Image,
+  film: Film,
+  sparkles: Sparkles,
+  message: MessageSquare,
+  shield: Shield,
+  clock: Clock,
+  check: Check,
+  box: Package,
+  dot: Circle,
+}
+
+const icon = computed<Component>(() => ICONS[props.name] ?? Circle)
+</script>
+
+<template>
+  <span class="icon">
+    <component :is="icon" :size="20" :stroke-width="1.8" aria-hidden="true" />
+  </span>
+</template>

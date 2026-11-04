@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>知识库 · 汇书台原型</title>
+    <link rel="stylesheet" href="assets/css/tokens.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <link rel="stylesheet" href="assets/css/pages.css" />
+  </head>
+  <body data-page="knowledge" data-title="知识库">
+    <div class="app-shell">
+      <aside class="sidebar" id="app-sidebar"></aside>
+      <div class="shell-main">
+        <header class="topbar" id="app-topbar"></header>
+
+        <main class="page">
+          <div class="page-head">
+            <div class="page-head-main">
+              <h1 class="page-title">知识库</h1>
+              <p class="page-desc">上传文档，构建可检索的知识库。</p>
+            </div>
+            <div class="page-actions" id="page-actions">
+              <button class="btn btn-primary" type="button" id="btn-upload-doc">
+                <span class="icon" data-icon="upload"></span>
+                上传文档
+              </button>
+            </div>
+          </div>
+
+          <section class="card">
+            <div class="card-head">
+              <div class="card-head-main">
+                <h3 class="card-title">文档</h3>
+              </div>
+              <div class="card-extra">
+                <span class="fs-sm subtle" id="doc-count">共 5 个</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="upload-inline" id="upload-zone">
+                <span class="upload-inline-icon" data-icon="upload"></span>
+                <div class="upload-inline-main">
+                  <div class="upload-inline-title">拖拽或点击上传文档</div>
+                  <div class="upload-inline-hint">PDF / Word / Markdown · 单文件 ≤ 50MB</div>
+                </div>
+                <div class="upload-inline-actions" id="upload-actions"></div>
+                <input type="file" id="doc-input" accept=".pdf,.doc,.docx,.md" hidden />
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>文档</th>
+                    <th>大小</th>
+                    <th>状态</th>
+                    <th>上传时间</th>
+                    <th class="th-actions">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="doc-tbody">
+                  <tr>
+                    <td>
+                      <div class="doc-name">
+                        <span class="icon" data-icon="file-text"></span>
+                        <span class="truncate">产品需求文档-v2.pdf</span>
+                      </div>
+                    </td>
+                    <td class="num">2.4 MB</td>
+                    <td>
+                      <span class="doc-status"><span class="status-dot is-ok"></span>可检索</span>
+                    </td>
+                    <td class="num">今天 10:24</td>
+                    <td>
+                      <div class="cell-actions">
+                        <button
+                          class="icon-btn"
+                          type="button"
+                          data-tip="删除"
+                          onclick="
+                            this.closest('tr').remove()
+                            AppUI.toast('已删除（演示）', 'success')
+                          "
+                        >
+                          <span class="icon" data-icon="trash"></span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="doc-name">
+                        <span class="icon" data-icon="file-text"></span>
+                        <span class="truncate">知识库-用户手册.md</span>
+                      </div>
+                    </td>
+                    <td class="num">86.5 KB</td>
+                    <td>
+                      <span class="doc-status"><span class="status-dot is-ok"></span>可检索</span>
+                    </td>
+                    <td class="num">昨天 22:15</td>
+                    <td>
+                      <div class="cell-actions">
+                        <button
+                          class="icon-btn"
+                          type="button"
+                          data-tip="删除"
+                          onclick="
+                            this.closest('tr').remove()
+                            AppUI.toast('已删除（演示）', 'success')
+                          "
+                        >
+                          <span class="icon" data-icon="trash"></span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="doc-name">
+                        <span class="icon" data-icon="file-text"></span>
+                        <span class="truncate">RAG-评测集.xlsx</span>
+                      </div>
+                    </td>
+                    <td class="num">512 KB</td>
+                    <td>
+                      <span class="doc-status"><span class="status-dot is-warn"></span>解析中</span>
+                    </td>
+                    <td class="num">10-28 16:02</td>
+                    <td>
+                      <div class="cell-actions">
+                        <button
+                          class="icon-btn"
+                          type="button"
+                          data-tip="删除"
+                          onclick="
+                            this.closest('tr').remove()
+                            AppUI.toast('已删除（演示）', 'success')
+                          "
+                        >
+                          <span class="icon" data-icon="trash"></span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="doc-name">
+                        <span class="icon" data-icon="file-text"></span>
+                        <span class="truncate">架构示意图.png</span>
+                      </div>
+                    </td>
+                    <td class="num">1.8 MB</td>
+                    <td>
+                      <span class="doc-status"><span class="status-dot is-idle"></span>已上传</span>
+                    </td>
+                    <td class="num">10-26 09:41</td>
+                    <td>
+                      <div class="cell-actions">
+                        <button
+                          class="icon-btn"
+                          type="button"
+                          data-tip="删除"
+                          onclick="
+                            this.closest('tr').remove()
+                            AppUI.toast('已删除（演示）', 'success')
+                          "
+                        >
+                          <span class="icon" data-icon="trash"></span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="doc-name">
+                        <span class="icon" data-icon="file-text"></span>
+                        <span class="truncate">部署说明.txt</span>
+                      </div>
+                    </td>
+                    <td class="num">18.2 KB</td>
+                    <td>
+                      <span class="doc-status"><span class="status-dot is-idle"></span>已上传</span>
+                    </td>
+                    <td class="num">10-24 18:30</td>
+                    <td>
+                      <div class="cell-actions">
+                        <button
+                          class="icon-btn"
+                          type="button"
+                          data-tip="删除"
+                          onclick="
+                            this.closest('tr').remove()
+                            AppUI.toast('已删除（演示）', 'success')
+                          "
+                        >
+                          <span class="icon" data-icon="trash"></span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="card mt-4">
+            <div class="card-head">
+              <div class="card-head-main">
+                <h3 class="card-title">知识库问答</h3>
+              </div>
+              <div class="card-extra">
+                <span class="badge badge-dashed">即将上线</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="qa-bar">
+                <span class="icon" data-icon="search"></span>
+                <input class="input" placeholder="基于知识库提问" disabled />
+                <button class="btn btn-secondary" type="button" disabled>提问</button>
+              </div>
+            </div>
+          </section>
+
+          <p class="quiet-note">
+            文档解析、向量化与问答能力正在接入；当前已支持文档上传与元数据管理。
+          </p>
+        </main>
+      </div>
+    </div>
+
+    <script src="assets/js/shell.js"></script>
+    <script>
+      ;(function () {
+        var zone = document.getElementById('upload-zone')
+        var input = document.getElementById('doc-input')
+        var actions = document.getElementById('upload-actions')
+        var tbody = document.getElementById('doc-tbody')
+        var count = document.getElementById('doc-count')
+
+        function updateCount() {
+          count.textContent = '共 ' + tbody.querySelectorAll('tr').length + ' 个'
+        }
+
+        function resetZone() {
+          actions.innerHTML = ''
+        }
+
+        function pick() {
+          input.click()
+        }
+
+        ;['dragenter', 'dragover'].forEach(function (evt) {
+          zone.addEventListener(evt, function (e) {
+            e.preventDefault()
+            zone.classList.add('is-drag')
+          })
+        })
+        ;['dragleave', 'drop'].forEach(function (evt) {
+          zone.addEventListener(evt, function (e) {
+            e.preventDefault()
+            zone.classList.remove('is-drag')
+            if (evt === 'drop' && e.dataTransfer.files.length) {
+              input.files = e.dataTransfer.files
+              onFile(e.dataTransfer.files[0])
+            }
+          })
+        })
+        zone.addEventListener('click', function (e) {
+          if (e.target.closest('button')) return
+          pick()
+        })
+        document.getElementById('btn-upload-doc').addEventListener('click', pick)
+        input.addEventListener('change', function () {
+          if (input.files.length) onFile(input.files[0])
+        })
+
+        function fmtSize(bytes) {
+          if (bytes < 1024) return bytes + ' B'
+          if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+          return (bytes / 1024 / 1024).toFixed(1) + ' MB'
+        }
+
+        function onFile(file) {
+          actions.innerHTML =
+            '<span class="upload-file">' +
+            AppUI.icon('file-text') +
+            '<span>' +
+            AppUI.escape(file.name) +
+            '</span></span>' +
+            '<button class="btn btn-sm" type="button" id="upload-confirm">上传</button>'
+          document.getElementById('upload-confirm').addEventListener('click', function () {
+            var btn = this
+            btn.disabled = true
+            btn.textContent = '上传中…'
+            setTimeout(function () {
+              var row = document.createElement('tr')
+              row.innerHTML =
+                '<td><div class="doc-name">' +
+                AppUI.icon('file-text') +
+                '<span class="truncate">' +
+                AppUI.escape(file.name) +
+                '</span></div></td>' +
+                '<td class="num">' +
+                fmtSize(file.size) +
+                '</td>' +
+                '<td><span class="doc-status"><span class="status-dot is-warn"></span>解析中</span></td>' +
+                '<td class="num">刚刚</td>' +
+                '<td><div class="cell-actions"><button class="icon-btn" type="button" data-tip="删除">' +
+                AppUI.icon('trash') +
+                '</button></div></td>'
+              tbody.insertBefore(row, tbody.firstChild)
+              updateCount()
+              resetZone()
+              input.value = ''
+              AppUI.toast('上传成功，等待解析', 'success')
+            }, 1100)
+          })
+        }
+      })()
+    </script>
+  </body>
+</html>

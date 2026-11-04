@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>注册 · 汇书台原型</title>
+    <link rel="stylesheet" href="assets/css/tokens.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <link rel="stylesheet" href="assets/css/pages.css" />
+  </head>
+  <body data-layout="auth" data-page="register" data-title="注册">
+    <div class="auth-page">
+      <aside class="auth-brand">
+        <a class="brand" href="index.html">
+          <span class="brand-mark">
+            <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <defs>
+                <linearGradient
+                  id="hs-reg-g"
+                  x1="0"
+                  y1="0"
+                  x2="32"
+                  y2="32"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop stop-color="#5B8CFF" />
+                  <stop offset="0.55" stop-color="#3B6CF6" />
+                  <stop offset="1" stop-color="#0EB6A6" />
+                </linearGradient>
+              </defs>
+              <rect width="32" height="32" rx="9" fill="url(#hs-reg-g)" />
+              <path
+                d="M9.5 10.5h6.2a2 2 0 0 1 2 2v9.4a2.6 2.6 0 0 0-2.6-2.6H9.5z"
+                fill="#fff"
+                opacity=".95"
+              />
+              <path
+                d="M22.5 10.5h-6.2a2 2 0 0 0-2 2v9.4a2.6 2.6 0 0 1 2.6-2.6h5.6z"
+                fill="#fff"
+                opacity=".68"
+              />
+              <circle cx="22.6" cy="9.4" r="1.5" fill="#8FF7E8" />
+            </svg>
+          </span>
+          <span class="brand-text"
+            ><strong>汇书台</strong><span class="brand-sub">AI Workspace</span></span
+          >
+        </a>
+
+        <h1 class="auth-title">创建账号<br />开始使用汇书台</h1>
+        <p class="auth-subtitle">注册后即可上传文档、配置模型服务。</p>
+
+        <div class="auth-brand-foot">汇书台 · AI 应用落地技术整合实践</div>
+      </aside>
+
+      <section class="auth-panel">
+        <div class="auth-card">
+          <div class="auth-card-head">
+            <h2 class="auth-card-title">注册</h2>
+            <p class="auth-card-desc">只需用户名与密码。</p>
+          </div>
+
+          <form id="register-form" novalidate>
+            <div class="form-grid">
+              <div class="field">
+                <label class="field-label" for="reg-username">用户名</label>
+                <div class="input-icon">
+                  <span class="icon" data-icon="user"></span>
+                  <input
+                    class="input"
+                    id="reg-username"
+                    placeholder="3–50 位"
+                    autocomplete="username"
+                    style="padding-right: 42px"
+                  />
+                  <div class="input-extra">
+                    <span class="username-state" id="username-state"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="reg-password">密码</label>
+                <div class="input-icon">
+                  <span class="icon" data-icon="lock"></span>
+                  <input
+                    class="input"
+                    id="reg-password"
+                    type="password"
+                    placeholder="6–128 位"
+                    autocomplete="new-password"
+                  />
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="reg-confirm">确认密码</label>
+                <div class="input-icon">
+                  <span class="icon" data-icon="lock"></span>
+                  <input
+                    class="input"
+                    id="reg-confirm"
+                    type="password"
+                    placeholder="再次输入密码"
+                    autocomplete="new-password"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <p class="field-error mt-3" id="reg-error" hidden></p>
+
+            <label class="check mt-4"
+              ><input type="checkbox" id="reg-agree" checked /> 同意《服务条款》（演示）</label
+            >
+
+            <button class="btn btn-block btn-lg mt-4" type="submit" id="reg-submit">
+              创建账号
+            </button>
+          </form>
+
+          <p class="auth-switch">已有账号？<a href="login.html">登录</a></p>
+          <p class="quiet-note" style="text-align: center">演示原型 · 用户名 demo 视为已占用</p>
+          <p class="auth-switch" style="margin-top: 6px">
+            <a class="subtle" href="index.html" style="font-size: var(--fs-xs)">原型总览</a>
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <script src="assets/js/shell.js"></script>
+    <script>
+      ;(function () {
+        var form = document.getElementById('register-form')
+        var username = document.getElementById('reg-username')
+        var password = document.getElementById('reg-password')
+        var confirm = document.getElementById('reg-confirm')
+        var state = document.getElementById('username-state')
+        var error = document.getElementById('reg-error')
+        var submit = document.getElementById('reg-submit')
+        var checkTimer = null
+
+        function setState(text, cls, icon) {
+          state.className = 'username-state ' + (cls || '')
+          state.innerHTML = (icon ? AppUI.icon(icon, 'icon-sm') : '') + '<span>' + text + '</span>'
+        }
+
+        function showError(msg) {
+          error.textContent = msg
+          error.hidden = false
+        }
+
+        username.addEventListener('input', function () {
+          clearTimeout(checkTimer)
+          var value = username.value.trim()
+          username.classList.remove('is-error', 'is-success')
+          if (!value) return setState('')
+          if (value.length < 3) return setState('至少 3 位', 'text-warning', 'alert-circle')
+          setState('', '')
+          checkTimer = setTimeout(function () {
+            if (value === 'demo') {
+              setState('已占用', 'text-danger', 'circle-x')
+              username.classList.add('is-error')
+            } else {
+              setState('可用', 'text-success', 'circle-check')
+              username.classList.add('is-success')
+            }
+          }, 400)
+        })
+
+        form.addEventListener('submit', function (e) {
+          e.preventDefault()
+          error.hidden = true
+          var name = username.value.trim()
+          if (!name) return showError('请输入用户名')
+          if (name.length < 3) return showError('用户名至少 3 位')
+          if (name === 'demo') return showError('用户名已存在')
+          if (password.value.length < 6) return showError('密码至少 6 位')
+          if (password.value !== confirm.value) return showError('两次输入的密码不一致')
+          if (!document.getElementById('reg-agree').checked) return showError('请先同意服务条款')
+          submit.disabled = true
+          submit.textContent = '创建中…'
+          setTimeout(function () {
+            location.href = 'home.html'
+          }, 600)
+        })
+      })()
+    </script>
+  </body>
+</html>

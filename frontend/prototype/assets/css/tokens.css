@@ -1,0 +1,145 @@
+/* ==========================================================================
+   汇书台 · 设计令牌（Design Tokens）
+   UI 概念原型专用 —— 所有颜色 / 字号 / 间距 / 圆角 / 阴影统一从这里取，
+   新页面禁止硬编码色值尺寸，统一引用 var(--xxx)。
+   ========================================================================== */
+
+:root {
+  /* ---------- 品牌主色：墨蓝 ---------- */
+  --primary-50: #edf2ff;
+  --primary-100: #dce6ff;
+  --primary-200: #b9cdff;
+  --primary-300: #8fb0ff;
+  --primary-400: #5b8cff;
+  --primary-500: #3b6cf6;
+  --primary-600: #2f5ce0;
+  --primary-700: #2549c4;
+  --primary-800: #1e3a9c;
+
+  /* ---------- 辅助色：青碧（AI / 数据流） ---------- */
+  --teal-100: #d8fbf6;
+  --teal-300: #6ee7da;
+  --teal-400: #2dd4c4;
+  --teal-500: #0eb6a6;
+  --teal-600: #0a9488;
+
+  /* ---------- 语义色 ---------- */
+  --success-50: #e9f9f0;
+  --success-100: #d2f3df;
+  --success-500: #12a150;
+  --success-600: #0e8642;
+
+  --warning-50: #fff6e5;
+  --warning-100: #ffe9c2;
+  --warning-500: #d9810a;
+  --warning-600: #b56a05;
+
+  --danger-50: #fdecee;
+  --danger-100: #fbd8dc;
+  --danger-500: #d93f4c;
+  --danger-600: #bc2f3b;
+
+  --violet-50: #f3eeff;
+  --violet-500: #7c5cf0;
+  --violet-600: #6845e0;
+
+  /* ---------- 中性色 ---------- */
+  --bg: #f4f6fb;
+  --bg-deep: #edf0f7;
+  --surface: #ffffff;
+  --surface-2: #f8fafd;
+  --surface-3: #eff3fa;
+  --border: #e4e9f2;
+  --border-strong: #d2dae8;
+  --text: #0f1730;
+  --text-2: #5a6580;
+  --text-3: #8b94a8;
+  --text-inverse: #f7faff;
+
+  /* ---------- 深色侧边栏 ---------- */
+  --sidebar-bg: linear-gradient(180deg, #0b1226 0%, #0e1a33 52%, #0a1424 100%);
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-text: #a9b4ce;
+  --sidebar-text-strong: #f2f6ff;
+  --sidebar-text-muted: #6d7897;
+  --sidebar-hover: rgba(255, 255, 255, 0.06);
+  --sidebar-active: linear-gradient(
+    90deg,
+    rgba(59, 108, 246, 0.3) 0%,
+    rgba(34, 211, 196, 0.1) 100%
+  );
+
+  /* ---------- 渐变 ---------- */
+  --grad-brand: linear-gradient(135deg, #5b8cff 0%, #3b6cf6 52%, #0eb6a6 100%);
+  --grad-brand-soft: linear-gradient(
+    135deg,
+    rgba(91, 140, 255, 0.16) 0%,
+    rgba(14, 182, 166, 0.12) 100%
+  );
+  --grad-auth: radial-gradient(120% 120% at 0% 0%, #14264f 0%, #0b1226 46%, #071022 100%);
+  --grad-ai: linear-gradient(135deg, #3b6cf6 0%, #7c5cf0 52%, #0eb6a6 100%);
+
+  /* ---------- 字体 ---------- */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', 'SF Mono', Consolas, 'Liberation Mono', monospace;
+
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 18px;
+  --fs-2xl: 22px;
+  --fs-3xl: 28px;
+  --fs-4xl: 34px;
+
+  --lh-tight: 1.28;
+  --lh-base: 1.62;
+
+  /* ---------- 间距（4 的倍数） ---------- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-7: 28px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  /* ---------- 圆角 ---------- */
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 18px;
+  --r-full: 999px;
+
+  /* ---------- 阴影 ---------- */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 48, 0.06);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 48, 0.06), 0 1px 2px rgba(15, 23, 48, 0.04);
+  --shadow-md: 0 8px 24px -8px rgba(15, 23, 48, 0.16), 0 2px 6px rgba(15, 23, 48, 0.05);
+  --shadow-lg: 0 24px 56px -24px rgba(15, 23, 48, 0.32), 0 10px 24px -12px rgba(15, 23, 48, 0.14);
+  --ring: 0 0 0 3px rgba(59, 108, 246, 0.18);
+  --ring-danger: 0 0 0 3px rgba(217, 63, 76, 0.16);
+
+  /* ---------- 布局 ---------- */
+  --sidebar-w: 248px;
+  --sidebar-w-collapsed: 76px;
+  --topbar-h: 60px;
+  --page-max: 1560px;
+  --page-pad-x: 32px;
+  --page-pad-y: 28px;
+
+  /* ---------- 层级 ---------- */
+  --z-topbar: 30;
+  --z-dropdown: 60;
+  --z-modal: 80;
+  --z-toast: 100;
+
+  /* ---------- 动效 ---------- */
+  --transition: 160ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}

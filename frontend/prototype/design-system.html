@@ -1,0 +1,1240 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>设计规范 · 汇书台原型</title>
+    <link rel="stylesheet" href="assets/css/tokens.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <link rel="stylesheet" href="assets/css/pages.css" />
+    <style>
+      .token-strip {
+        display: flex;
+        height: 6px;
+        border-radius: var(--r-full);
+        overflow: hidden;
+      }
+      .token-strip span {
+        flex: 1;
+      }
+      .anatomy {
+        display: grid;
+        grid-template-columns: 110px minmax(0, 1fr);
+        gap: 12px;
+        min-height: 240px;
+      }
+      .anatomy-side {
+        border-radius: var(--r-md);
+        background: var(--grad-auth);
+        color: var(--sidebar-text);
+        padding: 12px 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 11px;
+      }
+      .anatomy-side .anatomy-brand {
+        height: 20px;
+        border-radius: 5px;
+        background: rgba(255, 255, 255, 0.16);
+      }
+      .anatomy-side .anatomy-item {
+        height: 14px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .anatomy-side .anatomy-item.is-active {
+        background: rgba(59, 108, 246, 0.5);
+      }
+      .anatomy-main {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        border: 1px solid var(--border);
+        border-radius: var(--r-md);
+        overflow: hidden;
+        background: var(--surface);
+      }
+      .anatomy-top {
+        height: 26px;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface-2);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0 10px;
+        font-size: 10px;
+        color: var(--text-3);
+      }
+      .anatomy-top .anatomy-pill {
+        height: 10px;
+        border-radius: 999px;
+        background: var(--border);
+      }
+      .anatomy-content {
+        flex: 1;
+        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 10px;
+        color: var(--text-3);
+      }
+      .anatomy-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .anatomy-title {
+        width: 90px;
+        height: 16px;
+        border-radius: 4px;
+        background: var(--text);
+        opacity: 0.82;
+      }
+      .anatomy-actions {
+        display: flex;
+        gap: 5px;
+      }
+      .anatomy-actions span {
+        width: 34px;
+        height: 12px;
+        border-radius: 4px;
+        background: var(--primary-100);
+      }
+      .anatomy-actions span:first-child {
+        background: var(--primary-400);
+      }
+      .anatomy-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .anatomy-body span {
+        height: 54px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--surface-2);
+      }
+      .icon-grid {
+        display: grid;
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .icon-cell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 12px 6px;
+        border: 1px solid var(--border);
+        border-radius: var(--r-sm);
+        background: var(--surface);
+        color: var(--text-2);
+        font-size: 10.5px;
+        font-family: var(--font-mono);
+      }
+      .icon-cell .icon {
+        color: var(--text);
+      }
+      .ds-grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+      .ds-grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+      .ds-note {
+        color: var(--text-2);
+        font-size: var(--fs-sm);
+        line-height: 1.8;
+      }
+      .ds-note code,
+      .ds-note .mono {
+        color: var(--primary-700);
+      }
+      .ds-code code {
+        white-space: pre;
+      }
+      .spacing-demo {
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+      }
+      .spacing-demo span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: var(--r-sm);
+        background: var(--primary-50);
+        color: var(--primary-700);
+        font-family: var(--font-mono);
+        font-size: 11px;
+      }
+      .shadow-demo {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      .shadow-demo span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 110px;
+        height: 52px;
+        border-radius: var(--r-md);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-2);
+        box-shadow: var(--shadow-xs);
+      }
+      .shadow-demo .s-sm {
+        box-shadow: var(--shadow-sm);
+      }
+      .shadow-demo .s-md {
+        box-shadow: var(--shadow-md);
+      }
+      .shadow-demo .s-lg {
+        box-shadow: var(--shadow-lg);
+      }
+      .width-rule {
+        display: grid;
+        grid-template-columns: 120px minmax(0, 1fr) 200px;
+        gap: 12px;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px dashed var(--border);
+        font-size: var(--fs-sm);
+      }
+      .width-rule:last-child {
+        border-bottom: 0;
+      }
+      .width-rule .bar {
+        height: 10px;
+        border-radius: var(--r-full);
+        background: linear-gradient(90deg, var(--primary-300), var(--teal-300));
+      }
+      .steps {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .step {
+        display: flex;
+        gap: 12px;
+      }
+      .step-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: var(--primary-50);
+        color: var(--primary-700);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 700;
+        flex: none;
+      }
+      .step-body strong {
+        display: block;
+        font-size: var(--fs-sm);
+        font-weight: 600;
+      }
+      .step-body span {
+        color: var(--text-2);
+        font-size: var(--fs-sm);
+      }
+    </style>
+  </head>
+  <body data-page="design-system" data-title="设计规范" data-group="设计文档">
+    <div class="app-shell">
+      <aside class="sidebar" id="app-sidebar"></aside>
+      <div class="shell-main">
+        <header class="topbar" id="app-topbar"></header>
+
+        <main class="page">
+          <div class="page-head">
+            <div class="page-head-main">
+              <div class="page-title-row">
+                <h1 class="page-title">设计规范</h1>
+                <span class="badge badge-info">Design System</span>
+              </div>
+              <p class="page-desc">
+                汇书台概念原型的统一视觉与组件契约：设计令牌、布局骨架、组件用法、交互状态与扩展接口。
+                新页面只需组合这里的类名与外壳能力，不再重复定义样式。
+              </p>
+            </div>
+            <div class="page-actions" id="page-actions">
+              <button
+                class="btn btn-primary"
+                type="button"
+                onclick="
+                  AppUI.copy(
+                    ':root { --primary-500: #3b6cf6; --teal-500: #0eb6a6; --bg: #f4f6fb; }',
+                  )
+                "
+              >
+                <span class="icon" data-icon="copy"></span>
+                复制令牌
+              </button>
+              <a class="btn btn-secondary" href="#extension"
+                ><span class="icon" data-icon="code"></span>扩展约定</a
+              >
+              <a class="btn btn-secondary" href="#components"
+                ><span class="icon" data-icon="grid"></span>组件清单</a
+              >
+            </div>
+          </div>
+
+          <div class="token-strip" style="margin-bottom: 20px">
+            <span style="background: var(--primary-500)"></span>
+            <span style="background: var(--primary-400)"></span>
+            <span style="background: var(--teal-500)"></span>
+            <span style="background: var(--violet-500)"></span>
+            <span style="background: var(--success-500)"></span>
+            <span style="background: var(--warning-500)"></span>
+            <span style="background: var(--danger-500)"></span>
+            <span style="background: var(--text)"></span>
+            <span style="background: var(--text-2)"></span>
+            <span style="background: var(--border)"></span>
+            <span style="background: var(--bg)"></span>
+          </div>
+
+          <!-- 设计原则 -->
+          <section class="showcase-section" style="margin-top: 0">
+            <div class="section-head">
+              <h2 class="section-title">设计原则</h2>
+              <span class="badge badge-neutral">4 条</span>
+            </div>
+            <div class="rule-grid">
+              <div class="rule-item is-do">
+                <span class="rule-icon" data-icon="filter"></span>
+                <div>
+                  <strong>信息收敛，入口分层</strong
+                  ><span>高频入口放首页与侧边栏；页面动作 ≤ 3，其余进「更多」或命令面板。</span>
+                </div>
+              </div>
+              <div class="rule-item is-do">
+                <span class="rule-icon" data-icon="list"></span>
+                <div>
+                  <strong>层级清晰，一屏可读</strong
+                  ><span>页头（标题 + 动作）→ 概览指标 → 主内容 → 说明；卡片间距 18px。</span>
+                </div>
+              </div>
+              <div class="rule-item is-do">
+                <span class="rule-icon" data-icon="palette"></span>
+                <div>
+                  <strong>统一令牌，禁止硬编码</strong
+                  ><span>颜色、字号、间距、圆角、阴影全部引用 tokens.css 变量。</span>
+                </div>
+              </div>
+              <div class="rule-item is-do">
+                <span class="rule-icon" data-icon="layers"></span>
+                <div>
+                  <strong>扩展优先</strong
+                  ><span>新页面注册导航与命令即可接入，外壳、组件与交互不重复实现。</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 色彩 -->
+          <section class="showcase-section">
+            <div class="section-head">
+              <h2 class="section-title">色彩</h2>
+              <span class="badge badge-neutral">墨蓝主色 + 青碧辅助</span>
+            </div>
+            <div class="swatch-grid">
+              <div class="swatch">
+                <div class="swatch-color" style="background: #3b6cf6"></div>
+                <div class="swatch-meta"><b>主色 Primary 500</b><span>#3B6CF6</span></div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: #2f5ce0"></div>
+                <div class="swatch-meta"><b>主色深 Primary 600</b><span>#2F5CE0</span></div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: #0eb6a6"></div>
+                <div class="swatch-meta"><b>辅助 Teal 500</b><span>#0EB6A6</span></div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: #7c5cf0"></div>
+                <div class="swatch-meta"><b>强调 Violet 500</b><span>#7C5CF0</span></div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: #12a150"></div>
+                <div class="swatch-meta"><b>成功 Success</b><span>#12A150</span></div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: #d9810a"></div>
+                <div class="swatch-meta"><b>警告 Warning</b><span>#D9810A</span></div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: #d93f4c"></div>
+                <div class="swatch-meta"><b>危险 Danger</b><span>#D93F4C</span></div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: #0f1730"></div>
+                <div class="swatch-meta"><b>正文 Text</b><span>#0F1730</span></div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: #5a6580"></div>
+                <div class="swatch-meta"><b>次要文字 Text-2</b><span>#5A6580</span></div>
+              </div>
+              <div class="swatch">
+                <div
+                  class="swatch-color"
+                  style="background: #f4f6fb; border-bottom: 1px solid #e4e9f2"
+                ></div>
+                <div class="swatch-meta"><b>页面背景 Bg</b><span>#F4F6FB</span></div>
+              </div>
+              <div class="swatch">
+                <div
+                  class="swatch-color"
+                  style="background: #ffffff; border-bottom: 1px solid #e4e9f2"
+                ></div>
+                <div class="swatch-meta"><b>卡片 Surface</b><span>#FFFFFF</span></div>
+              </div>
+              <div class="swatch">
+                <div class="swatch-color" style="background: #e4e9f2"></div>
+                <div class="swatch-meta"><b>边框 Border</b><span>#E4E9F2</span></div>
+              </div>
+            </div>
+            <p class="ds-note mt-3">
+              语义色只表达状态，不承担装饰：成功 / 警告 / 危险 / 信息；侧边栏使用深墨蓝渐变（
+              <span class="mono">--sidebar-bg</span>），强调 AI 能力时可用
+              <span class="mono">--grad-ai</span> 渐变。
+            </p>
+          </section>
+
+          <!-- 字体 -->
+          <section class="showcase-section">
+            <div class="section-head">
+              <h2 class="section-title">字体与排版</h2>
+              <span class="badge badge-neutral">系统中文字体栈</span>
+            </div>
+            <div class="two-col">
+              <div class="card">
+                <div class="card-body">
+                  <div class="type-row">
+                    <span class="type-name">--fs-4xl / 34</span
+                    ><span
+                      class="type-sample"
+                      style="font-size: 34px; font-weight: 700; letter-spacing: -1px"
+                      >汇书台 AI Workspace</span
+                    >
+                  </div>
+                  <div class="type-row">
+                    <span class="type-name">--fs-3xl / 28</span
+                    ><span
+                      class="type-sample"
+                      style="font-size: 28px; font-weight: 700; letter-spacing: -0.6px"
+                      >页面标题 Page Title</span
+                    >
+                  </div>
+                  <div class="type-row">
+                    <span class="type-name">--fs-xl / 18</span
+                    ><span class="type-sample" style="font-size: 18px; font-weight: 650"
+                      >区块标题 Section</span
+                    >
+                  </div>
+                  <div class="type-row">
+                    <span class="type-name">--fs-md / 14</span
+                    ><span class="type-sample">正文内容，用于表格、表单与说明文本。</span>
+                  </div>
+                  <div class="type-row">
+                    <span class="type-name">--fs-sm / 13</span
+                    ><span class="type-sample subtle">辅助文字，用于描述、提示与次要信息。</span>
+                  </div>
+                  <div class="type-row">
+                    <span class="type-name">--fs-xs / 12</span
+                    ><span class="type-sample subtle">标签、状态、脚注说明。</span>
+                  </div>
+                  <div class="type-row">
+                    <span class="type-name">mono</span
+                    ><span class="type-sample mono">POST /llm/chat/ · model_id=12</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-body">
+                  <div class="section-head" style="margin-bottom: 10px">
+                    <h3 class="section-title" style="font-size: var(--fs-md)">
+                      间距 / 圆角 / 阴影
+                    </h3>
+                  </div>
+                  <div class="spacing-demo">
+                    <span>4</span><span>8</span><span>12</span><span>16</span><span>20</span
+                    ><span>24</span><span>32</span>
+                  </div>
+                  <p class="ds-note mt-3">
+                    间距按 4px 网格取值：卡片内边距 20/22，栅格间距 18，页面左右留白 32。
+                  </p>
+                  <div class="shadow-demo mt-4">
+                    <span class="s-sm">shadow-sm</span>
+                    <span class="s-md">shadow-md</span>
+                    <span class="s-lg">shadow-lg</span>
+                  </div>
+                  <p class="ds-note mt-3">圆角：控件 8px，卡片 14px，弹窗 18px，胶囊 999px。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 布局骨架 -->
+          <section class="showcase-section">
+            <div class="section-head">
+              <h2 class="section-title">布局骨架</h2>
+              <span class="badge badge-neutral">PC 1280 – 1920</span>
+            </div>
+            <div class="two-col">
+              <div class="card">
+                <div class="card-head">
+                  <div class="card-head-main">
+                    <h3 class="card-title">应用外壳</h3>
+                    <p class="card-sub">固定侧边栏 + 吸顶顶栏 + 内容区</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="anatomy">
+                    <div class="anatomy-side">
+                      <div class="anatomy-brand"></div>
+                      <div class="anatomy-item is-active"></div>
+                      <div class="anatomy-item"></div>
+                      <div class="anatomy-item"></div>
+                      <div class="anatomy-item"></div>
+                    </div>
+                    <div class="anatomy-main">
+                      <div class="anatomy-top">
+                        <span class="anatomy-pill" style="width: 40px"></span>
+                        <span class="anatomy-pill" style="width: 60px"></span>
+                        <span class="anatomy-pill" style="width: 30px; margin-left: auto"></span>
+                        <span class="anatomy-pill" style="width: 30px"></span>
+                      </div>
+                      <div class="anatomy-content">
+                        <div class="anatomy-head">
+                          <span class="anatomy-title"></span
+                          ><span class="anatomy-actions"
+                            ><span></span><span></span><span></span
+                          ></span>
+                        </div>
+                        <div class="anatomy-body"><span></span><span></span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <ul class="ds-note mt-4" style="padding-left: 18px; list-style: disc">
+                    <li>侧边栏 248px（可折叠为 76px），顶栏 60px，内容最大宽度 1560px。</li>
+                    <li>
+                      页头固定结构：标题 + 描述 + 右上动作区（<span class="mono">#page-actions</span
+                      >）。
+                    </li>
+                    <li>页面只声明内容，外壳由 <span class="mono">shell.js</span> 统一渲染。</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-head">
+                  <div class="card-head-main">
+                    <h3 class="card-title">屏幕适配</h3>
+                    <p class="card-sub">只针对主流桌面分辨率，不做移动端</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="width-rule">
+                    <span class="mono">1280 × 720</span><span class="bar" style="width: 58%"></span
+                    ><span class="subtle">最小支持 · 双栏区域收窄</span>
+                  </div>
+                  <div class="width-rule">
+                    <span class="mono">1440 × 900</span><span class="bar" style="width: 72%"></span
+                    ><span class="subtle">常用 · 默认设计基准</span>
+                  </div>
+                  <div class="width-rule">
+                    <span class="mono">1600 × 900</span><span class="bar" style="width: 84%"></span
+                    ><span class="subtle">原型截图基准</span>
+                  </div>
+                  <div class="width-rule">
+                    <span class="mono">1920 × 1080</span
+                    ><span class="bar" style="width: 100%"></span
+                    ><span class="subtle">最大内容宽度 1560 居中</span>
+                  </div>
+                  <div class="alert alert-info mt-4">
+                    <span class="icon" data-icon="info"></span>
+                    <div>
+                      原型内容区使用流式布局，1280 以上不出现横向滚动；移动端 / 平板不在本轮范围内。
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 图标 -->
+          <section class="showcase-section">
+            <div class="section-head">
+              <h2 class="section-title">图标</h2>
+              <span class="badge badge-neutral">内联 SVG · 18px 线框</span>
+            </div>
+            <div class="card">
+              <div class="card-body">
+                <div class="icon-grid" id="icon-grid"></div>
+                <p class="ds-note mt-4">
+                  用法：<span class="mono"
+                    >&lt;span class="icon" data-icon="upload"&gt;&lt;/span&gt;</span
+                  >，由 shell.js 注入 SVG； 动态渲染时可用
+                  <span class="mono">AppUI.icon('upload')</span>。禁止手写裸
+                  <span class="mono">&lt;svg&gt;</span>。
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- 组件清单 -->
+          <section class="showcase-section" id="components">
+            <div class="section-head">
+              <h2 class="section-title">组件清单</h2>
+              <span class="badge badge-neutral">只用这些类名</span>
+            </div>
+
+            <div class="card mb-4">
+              <div class="card-head">
+                <div class="card-head-main"><h3 class="card-title">按钮 / 标签 / 状态</h3></div>
+              </div>
+              <div class="card-body">
+                <div class="component-row">
+                  <span class="component-row-label">按钮</span>
+                  <button class="btn" type="button">主按钮</button>
+                  <button class="btn btn-secondary" type="button">次按钮</button>
+                  <button class="btn btn-soft" type="button">软按钮</button>
+                  <button class="btn btn-ghost" type="button">幽灵按钮</button>
+                  <button class="btn btn-danger" type="button">危险</button>
+                  <button class="btn btn-sm" type="button">小号</button>
+                  <button class="btn" type="button" disabled>禁用</button>
+                  <button class="icon-btn" type="button" data-tip="图标按钮">
+                    <span class="icon" data-icon="refresh"></span>
+                  </button>
+                </div>
+                <div class="component-row">
+                  <span class="component-row-label">徽标</span>
+                  <span class="badge badge-success"
+                    ><span class="status-dot is-ok"></span>正常</span
+                  >
+                  <span class="badge badge-warning"
+                    ><span class="status-dot is-warn"></span>待验证</span
+                  >
+                  <span class="badge badge-danger">失败</span>
+                  <span class="badge badge-info">信息</span>
+                  <span class="badge badge-teal">AI</span>
+                  <span class="badge badge-violet">Gemini</span>
+                  <span class="badge badge-neutral">中性</span>
+                  <span class="badge badge-dashed">规划中</span>
+                  <span class="method m-get">GET</span>
+                  <span class="method m-post">POST</span>
+                  <span class="method m-patch">PATCH</span>
+                  <span class="method m-delete">DELETE</span>
+                </div>
+                <div class="component-row">
+                  <span class="component-row-label">标签 / 进度</span>
+                  <span class="chip is-primary">temperature</span>
+                  <span class="chip">max_tokens</span>
+                  <span class="chip is-teal">embeddings</span>
+                  <div class="progress" style="width: 160px">
+                    <div class="progress-bar" style="width: 62%"></div>
+                  </div>
+                  <span class="kbd">Ctrl</span><span class="kbd">K</span>
+                </div>
+                <div class="component-row">
+                  <span class="component-row-label">分段 / 开关</span>
+                  <div class="segmented">
+                    <button class="is-active" type="button">全部</button>
+                    <button type="button">已启用</button>
+                    <button type="button">待验证</button>
+                  </div>
+                  <label class="switch"
+                    ><input type="checkbox" checked /><span class="switch-track"></span
+                  ></label>
+                  <label class="check"><input type="checkbox" checked /> 记住登录</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="ds-grid-2 mb-4">
+              <div class="card">
+                <div class="card-head">
+                  <div class="card-head-main">
+                    <h3 class="card-title">表单</h3>
+                    <p class="card-sub">字段 / 输入 / 校验状态</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="form-grid">
+                    <div class="field">
+                      <label class="field-label" for="ds-name"
+                        >配置名称 <span class="req">*</span></label
+                      >
+                      <input class="input" id="ds-name" placeholder="例如：我的 DeepSeek" />
+                    </div>
+                    <div class="field">
+                      <label class="field-label" for="ds-select">供应商模板</label>
+                      <div class="select-wrap">
+                        <select class="select" id="ds-select">
+                          <option>DeepSeek</option>
+                          <option>通义千问 · 百炼</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label class="field-label" for="ds-error">错误状态</label>
+                      <input class="input is-error" id="ds-error" value="sk-invalid" />
+                      <p class="field-error">
+                        <span class="icon icon-sm" data-icon="alert-circle"></span>API Key
+                        无效或无权限
+                      </p>
+                    </div>
+                    <div class="field">
+                      <label class="field-label" for="ds-ok">成功状态</label>
+                      <input class="input is-success" id="ds-ok" value="sk-****7f2a" />
+                      <p class="field-help">API Key 已加密保存，仅回显掩码。</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-head">
+                  <div class="card-head-main">
+                    <h3 class="card-title">弹层 / 反馈</h3>
+                    <p class="card-sub">模态、抽屉、Toast、提示条</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="row wrap">
+                    <button class="btn btn-secondary" type="button" data-open="ds-modal">
+                      打开模态
+                    </button>
+                    <button class="btn btn-secondary" type="button" data-open="ds-drawer">
+                      打开抽屉
+                    </button>
+                    <button
+                      class="btn btn-secondary"
+                      type="button"
+                      onclick="AppUI.toast('操作成功（演示）', 'success')"
+                    >
+                      成功 Toast
+                    </button>
+                    <button
+                      class="btn btn-secondary"
+                      type="button"
+                      onclick="AppUI.toast('参数不合法：temperature 不能大于 2', 'danger')"
+                    >
+                      错误 Toast
+                    </button>
+                  </div>
+                  <div class="alert alert-info mt-4">
+                    <span class="icon" data-icon="info"></span>
+                    <div>信息提示：用于页面级说明与引导。</div>
+                  </div>
+                  <div class="alert alert-warning mt-3">
+                    <span class="icon" data-icon="alert-triangle"></span>
+                    <div>警告提示：用于可能失败的操作或待验证状态。</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-4">
+              <div class="card-head">
+                <div class="card-head-main"><h3 class="card-title">表格 / 工具栏 / 空状态</h3></div>
+              </div>
+              <div class="toolbar">
+                <div class="toolbar-left">
+                  <div class="input-icon search-input">
+                    <span class="icon" data-icon="search"></span>
+                    <input class="input" placeholder="搜索…" />
+                  </div>
+                  <div class="segmented">
+                    <button class="is-active" type="button">全部</button
+                    ><button type="button">chat</button><button type="button">embedding</button>
+                  </div>
+                  <div class="toolbar-divider"></div>
+                  <div class="select-wrap">
+                    <select class="select" style="height: 34px">
+                      <option>全部供应商</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="toolbar-right"><span class="badge badge-info">筛选示例</span></div>
+              </div>
+              <div class="table-wrap">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>模型</th>
+                      <th>供应商</th>
+                      <th>分类</th>
+                      <th>来源</th>
+                      <th>启用</th>
+                      <th class="th-actions">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div class="cell-main">
+                          <span class="cell-icon is-primary" data-icon="cpu"></span>
+                          <div>
+                            <div class="cell-title">DeepSeek Chat</div>
+                            <div class="cell-sub mono">deepseek-chat</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>我的 DeepSeek</td>
+                      <td><span class="badge badge-info">chat</span></td>
+                      <td><span class="badge badge-neutral">自动</span></td>
+                      <td>
+                        <label class="switch"
+                          ><input type="checkbox" checked /><span class="switch-track"></span
+                        ></label>
+                      </td>
+                      <td>
+                        <div class="cell-actions">
+                          <button class="icon-btn" type="button" data-tip="查看参数">
+                            <span class="icon" data-icon="sliders"></span></button
+                          ><button class="icon-btn" type="button" data-tip="编辑">
+                            <span class="icon" data-icon="edit"></span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="cell-main">
+                          <span class="cell-icon is-teal" data-icon="cpu"></span>
+                          <div>
+                            <div class="cell-title">Text Embedding v4</div>
+                            <div class="cell-sub mono">text-embedding-v4</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>通义千问 · 百炼</td>
+                      <td><span class="badge badge-teal">embedding</span></td>
+                      <td><span class="badge badge-warning">手动</span></td>
+                      <td>
+                        <label class="switch"
+                          ><input type="checkbox" checked /><span class="switch-track"></span
+                        ></label>
+                      </td>
+                      <td>
+                        <div class="cell-actions">
+                          <button class="icon-btn" type="button" data-tip="查看参数">
+                            <span class="icon" data-icon="sliders"></span></button
+                          ><button class="icon-btn" type="button" data-tip="删除">
+                            <span class="icon" data-icon="trash"></span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="table-foot">
+                <span>共 2 条示例</span><span class="spacer"></span>
+                <div class="pager">
+                  <button disabled>上一页</button><button class="is-active">1</button
+                  ><button>2</button><button>下一页</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="ds-grid-3">
+              <div class="card">
+                <div class="card-head">
+                  <div class="card-head-main"><h3 class="card-title">空状态</h3></div>
+                </div>
+                <div class="empty" style="padding: 32px 20px">
+                  <span class="empty-icon" data-icon="layers"></span>
+                  <h3>该分类还没有模型</h3>
+                  <p>手动登记一个模型，或先同步供应商模型列表。</p>
+                  <button class="btn btn-secondary btn-sm" type="button">手动登记</button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-head">
+                  <div class="card-head-main"><h3 class="card-title">下拉菜单</h3></div>
+                </div>
+                <div class="card-body">
+                  <div class="dropdown">
+                    <button class="btn btn-secondary" type="button" data-dropdown-toggle>
+                      <span class="icon" data-icon="more"></span>更多操作
+                    </button>
+                    <div class="menu">
+                      <div class="menu-label">操作</div>
+                      <button class="menu-item" type="button">
+                        <span class="icon" data-icon="refresh"></span>同步模型
+                      </button>
+                      <button class="menu-item" type="button">
+                        <span class="icon" data-icon="edit"></span>编辑配置
+                      </button>
+                      <div class="menu-divider"></div>
+                      <button class="menu-item is-danger" type="button">
+                        <span class="icon" data-icon="trash"></span>删除
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-head">
+                  <div class="card-head-main"><h3 class="card-title">时间线</h3></div>
+                </div>
+                <div class="card-body">
+                  <div class="timeline">
+                    <div class="timeline-item is-done">
+                      <div class="timeline-title">向量库封装</div>
+                    </div>
+                    <div class="timeline-item is-current">
+                      <div class="timeline-title">
+                        文档解析 <span class="badge badge-info">当前</span>
+                      </div>
+                    </div>
+                    <div class="timeline-item"><div class="timeline-title">检索问答</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 扩展约定 -->
+          <section class="showcase-section" id="extension">
+            <div class="section-head">
+              <h2 class="section-title">导航与扩展接口</h2>
+              <span class="badge badge-teal">避免按钮与页面堆积</span>
+            </div>
+            <p class="ds-note mb-4">
+              所有页面共享同一套外壳：导航、命令面板、页面动作栏与通用交互都由
+              <span class="mono">assets/js/shell.js</span> 提供。
+              新页面不修改外壳代码，只通过下面四个扩展点接入。
+            </p>
+
+            <div class="ds-grid-2 mb-4">
+              <div class="card">
+                <div class="card-head">
+                  <div class="card-head-main">
+                    <h3 class="card-title">① 导航注册表</h3>
+                    <p class="card-sub">侧边栏 / 面包屑 / 命令面板共用一份配置</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <pre
+                    class="code-block ds-code"
+                  ><span class="code-head">shell.js · 导航数据结构</span><code>AppShell.nav.groups = [
+  { id: 'workspace', label: '工作区', items: [
+    { id: 'home', label: '首页', icon: 'home', href: 'home.html' },
+    { id: 'knowledge', label: '知识库', icon: 'book',
+      href: 'knowledge.html' }
+  ]},
+  { id: 'service', label: '服务', items: [
+    { id: 'llm', label: '模型服务', icon: 'cpu', href: 'llm.html' }
+  ]}
+];
+
+// 运行期追加（例如新模块上线）
+AppShell.nav.addItem('service', item);
+AppShell.nav.addGroup(group);</code></pre>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-head">
+                  <div class="card-head-main">
+                    <h3 class="card-title">② 命令面板</h3>
+                    <p class="card-sub">页面与操作统一搜索，Ctrl / Cmd + K</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <pre
+                    class="code-block ds-code"
+                  ><span class="code-head">页面脚本 · 注册命令</span><code>AppShell.commands.add({
+  id: 'checklist',
+  group: '快捷操作',
+  title: '查看接入进度',
+  hint: '首页',
+  icon: 'list',
+  run: () =&gt; AppUI.open('checklist')
+});</code></pre>
+                  <p class="ds-note mt-3">
+                    命令由导航项 + 自定义动作自动汇总；页面再多，也不需要在顶栏增加按钮。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="ds-grid-2 mb-4">
+              <div class="card">
+                <div class="card-head">
+                  <div class="card-head-main">
+                    <h3 class="card-title">③ 页面动作栏（自动折叠）</h3>
+                    <p class="card-sub">页面只需按顺序声明按钮</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <pre
+                    class="code-block ds-code"
+                  ><span class="code-head">任意页面 · 声明的动作</span><code>&lt;div class="page-actions" id="page-actions"&gt;
+  &lt;button class="btn btn-primary"&gt;主操作&lt;/button&gt;
+  &lt;button class="btn btn-secondary"&gt;次操作&lt;/button&gt;
+  &lt;button class="btn btn-secondary"&gt;次操作&lt;/button&gt;
+  &lt;button class="btn btn-secondary"&gt;次操作&lt;/button&gt;
+&lt;/div&gt;
+
+// 超过 3 个：主操作常驻，其余收进「更多」</code></pre>
+                  <p class="ds-note mt-3">
+                    主操作常驻，其余按顺序收进「更多」；页面本身只需要按优先级声明按钮。
+                  </p>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-head">
+                  <div class="card-head-main">
+                    <h3 class="card-title">④ 组件契约与页面骨架</h3>
+                    <p class="card-sub">新页面的最小实现</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <pre
+                    class="code-block ds-code"
+                  ><span class="code-head">新页面骨架 · 5 步</span><code>1. 复制 home.html 的 head / body 外壳
+2. data-page 与导航 id 保持一致
+3. 页头写标题、描述与 #page-actions
+4. 内容只用 components.css 组件类
+5. 需要交互时用 data-open / data-tabs /
+   data-dropdown-toggle / AppUI.toast</code></pre>
+                  <p class="ds-note mt-3">
+                    外壳自动渲染侧边栏、面包屑、用户菜单与命令面板，页面无需重复实现。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <div class="card-head-main">
+                  <h3 class="card-title">防堆积规则</h3>
+                  <p class="card-sub">页面数量增长时，先做信息架构，再谈按钮位置</p>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="table-wrap">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>场景</th>
+                        <th>做法</th>
+                        <th>不要这样</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>同一页面操作变多</td>
+                        <td>常驻 ≤ 3 个（主操作 + 2 个次操作），其余进「更多」下拉</td>
+                        <td>横向排 6+ 个按钮</td>
+                      </tr>
+                      <tr>
+                        <td>功能模块变多</td>
+                        <td>侧边栏按领域分组（内容 / 模型 / 智能应用 / 系统），组内可折叠</td>
+                        <td>全部平铺成一级导航</td>
+                      </tr>
+                      <tr>
+                        <td>页面入口高频</td>
+                        <td>首页应用入口 + 命令面板（Ctrl + K）</td>
+                        <td>顶栏堆满快捷按钮</td>
+                      </tr>
+                      <tr>
+                        <td>页面内部层级多</td>
+                        <td>页内 Tabs / 分段控件 / 抽屉下钻</td>
+                        <td>再开一个新页面放按钮</td>
+                      </tr>
+                      <tr>
+                        <td>非当前能力</td>
+                        <td>用「规划中」占位页 + 路线图说明，按钮置灰</td>
+                        <td>提前放半成品入口</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Do / Don't -->
+          <section class="showcase-section">
+            <div class="section-head"><h2 class="section-title">Do / Don't</h2></div>
+            <div class="rule-grid">
+              <div class="rule-item is-do">
+                <span class="rule-icon" data-icon="check"></span>
+                <div>
+                  <strong>Do：一页一个主任务</strong
+                  ><span>页头只放与当前页面直接相关的操作；跨页面动作交给首页入口或命令面板。</span>
+                </div>
+              </div>
+              <div class="rule-item is-dont">
+                <span class="rule-icon" data-icon="x"></span>
+                <div>
+                  <strong>Don't：把页头当工具栏</strong
+                  ><span>筛选、批量操作放内容区 toolbar；页头动作保持克制。</span>
+                </div>
+              </div>
+              <div class="rule-item is-do">
+                <span class="rule-icon" data-icon="check"></span>
+                <div>
+                  <strong>Do：状态用语义色 + 文案</strong
+                  ><span>颜色只辅助，必须同时给出文字（如「待验证」「需登录」）。</span>
+                </div>
+              </div>
+              <div class="rule-item is-dont">
+                <span class="rule-icon" data-icon="x"></span>
+                <div>
+                  <strong>Don't：用颜色表达装饰等级</strong
+                  ><span>卡片、正文不使用高饱和色；强调只给主操作与关键数据。</span>
+                </div>
+              </div>
+              <div class="rule-item is-do">
+                <span class="rule-icon" data-icon="check"></span>
+                <div>
+                  <strong>Do：空态、失败态、加载态一起设计</strong
+                  ><span>列表 / 详情页至少准备空状态与失败提示，避免空白屏。</span>
+                </div>
+              </div>
+              <div class="rule-item is-dont">
+                <span class="rule-icon" data-icon="x"></span>
+                <div>
+                  <strong>Don't：页面内重复造组件</strong
+                  ><span>按钮、表格、弹层只用共享类；特殊样式写页面作用域并注明原因。</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="proto-note mt-6">
+            <span class="icon" data-icon="info"></span>
+            <div>
+              本页是概念原型的说明文档，所有交互均为演示：不会发起真实网络请求，数据来自页面内
+              mock。 文件位置：<span class="mono">frontend/prototype/</span>；直接双击 HTML
+              或通过静态服务器打开即可。
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- 演示弹层 -->
+    <div class="modal" id="ds-modal" hidden>
+      <div class="modal-backdrop" data-close="ds-modal"></div>
+      <div class="modal-card modal-sm">
+        <div class="modal-head">
+          <div>
+            <h3 class="modal-title">示例模态</h3>
+            <p class="modal-sub">用于二次确认、表单填写与信息展示</p>
+          </div>
+          <button class="icon-btn" type="button" data-close="ds-modal">
+            <span class="icon" data-icon="x"></span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-info">
+            <span class="icon" data-icon="info"></span>
+            <div>
+              使用 <span class="mono">data-open="id"</span> 打开，<span class="mono"
+                >data-close="id"</span
+              >
+              关闭；Esc 也可关闭。
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-secondary" type="button" data-close="ds-modal">取消</button>
+          <button
+            class="btn"
+            type="button"
+            data-close="ds-modal"
+            onclick="AppUI.toast('已确认（演示）', 'success')"
+          >
+            确认
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="drawer" id="ds-drawer" hidden>
+      <div class="drawer-backdrop" data-close="ds-drawer"></div>
+      <div class="drawer-panel">
+        <div class="drawer-head">
+          <div>
+            <h3 class="modal-title">示例抽屉</h3>
+            <p class="modal-sub">用于新增 / 编辑表单，避免频繁跳页</p>
+          </div>
+          <button class="icon-btn" type="button" data-close="ds-drawer">
+            <span class="icon" data-icon="x"></span>
+          </button>
+        </div>
+        <div class="drawer-body">
+          <div class="field">
+            <label class="field-label" for="ds-drawer-name">配置名称</label>
+            <input class="input" id="ds-drawer-name" placeholder="例如：我的 DeepSeek" />
+          </div>
+          <div class="drawer-note mt-4">
+            抽屉右侧滑出，宽度 520px；适合 3 个字段以内的快速编辑。
+          </div>
+        </div>
+        <div class="drawer-foot">
+          <button class="btn btn-secondary" type="button" data-close="ds-drawer">取消</button>
+          <button
+            class="btn"
+            type="button"
+            data-close="ds-drawer"
+            onclick="AppUI.toast('已保存（演示）', 'success')"
+          >
+            保存
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="assets/js/shell.js"></script>
+    <script>
+      ;(function () {
+        // 图标总览：直接读取 shell.js 的图标库
+        var names = Object.keys(AppShell.icons)
+        var grid = document.getElementById('icon-grid')
+        grid.innerHTML = names
+          .map(function (name) {
+            return '<div class="icon-cell">' + AppUI.icon(name) + '<span>' + name + '</span></div>'
+          })
+          .join('')
+
+        // 代码块复制按钮
+        document.querySelectorAll('.code-block').forEach(function (block) {
+          var head = block.querySelector('.code-head')
+          if (!head) return
+          var btn = document.createElement('button')
+          btn.className = 'code-copy'
+          btn.type = 'button'
+          btn.textContent = '复制'
+          btn.addEventListener('click', function () {
+            var code = block.querySelector('code')
+            AppUI.copy(code ? code.textContent : '')
+          })
+          head.appendChild(btn)
+        })
+      })()
+    </script>
+  </body>
+</html>

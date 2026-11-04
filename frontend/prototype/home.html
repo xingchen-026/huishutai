@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>首页 · 汇书台原型</title>
+    <link rel="stylesheet" href="assets/css/tokens.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <link rel="stylesheet" href="assets/css/pages.css" />
+  </head>
+  <body data-page="home" data-title="首页">
+    <div class="app-shell">
+      <aside class="sidebar" id="app-sidebar"></aside>
+      <div class="shell-main">
+        <header class="topbar" id="app-topbar"></header>
+
+        <main class="page">
+          <div class="home-head">
+            <h1 class="home-title">汇书台</h1>
+            <p class="home-sub">选择要使用的应用</p>
+          </div>
+
+          <div class="app-grid">
+            <a class="app-card is-available" href="knowledge.html">
+              <span class="app-card-icon" data-icon="book"></span>
+              <div>
+                <div class="app-card-title">知识库</div>
+                <div class="app-card-desc">上传文档，检索与问答</div>
+              </div>
+              <div class="app-card-foot">
+                进入 <span class="icon icon-sm" data-icon="arrow-right"></span>
+              </div>
+            </a>
+
+            <a class="app-card is-available" href="llm.html">
+              <span class="app-card-icon" data-icon="cpu"></span>
+              <div>
+                <div class="app-card-title">模型服务</div>
+                <div class="app-card-desc">配置供应商，管理可用模型</div>
+              </div>
+              <div class="app-card-foot">
+                进入 <span class="icon icon-sm" data-icon="arrow-right"></span>
+              </div>
+            </a>
+
+            <div class="app-card is-planned">
+              <span class="app-card-icon" data-icon="sparkles"></span>
+              <div>
+                <div class="app-card-title">Agent 编排</div>
+                <div class="app-card-desc">多步骤任务与工具调用</div>
+              </div>
+              <div class="app-card-foot">即将上线</div>
+            </div>
+
+            <div class="app-card is-planned">
+              <span class="app-card-icon" data-icon="image"></span>
+              <div>
+                <div class="app-card-title">文生图</div>
+                <div class="app-card-desc">文本生成图像</div>
+              </div>
+              <div class="app-card-foot">即将上线</div>
+            </div>
+
+            <div class="app-card is-planned">
+              <span class="app-card-icon" data-icon="film"></span>
+              <div>
+                <div class="app-card-title">文生视频</div>
+                <div class="app-card-desc">文本生成视频</div>
+              </div>
+              <div class="app-card-foot">即将上线</div>
+            </div>
+
+            <div class="app-card is-planned">
+              <span class="app-card-icon" data-icon="plus"></span>
+              <div>
+                <div class="app-card-title">更多应用</div>
+                <div class="app-card-desc">按模块逐步接入</div>
+              </div>
+              <div class="app-card-foot">持续更新</div>
+            </div>
+          </div>
+
+          <p class="notice-line">
+            <span class="icon" data-icon="info"></span>汇书台 · AI 应用落地技术整合实践
+          </p>
+        </main>
+      </div>
+    </div>
+
+    <script src="assets/js/shell.js"></script>
+  </body>
+</html>

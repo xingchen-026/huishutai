@@ -1,10 +1,23 @@
 <!doctype html>
-<html lang="">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
+    <meta name="theme-color" content="#0b1226" />
+    <title>汇书台</title>
+    <script>
+      // 首屏前应用主题，避免亮/暗切换闪烁；key 与 src/stores/theme.ts 保持一致
+      ;(function () {
+        try {
+          var saved = localStorage.getItem('huishutai-theme')
+          var dark =
+            saved === 'dark' ||
+            (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+        } catch (e) {}
+      })()
+    </script>
   </head>
   <body>
     <div id="app"></div>

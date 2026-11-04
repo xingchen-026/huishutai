@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>模型服务 · 汇书台原型</title>
+    <link rel="stylesheet" href="assets/css/tokens.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <link rel="stylesheet" href="assets/css/pages.css" />
+  </head>
+  <body data-page="llm" data-title="模型服务">
+    <div class="app-shell">
+      <aside class="sidebar" id="app-sidebar"></aside>
+      <div class="shell-main">
+        <header class="topbar" id="app-topbar"></header>
+
+        <main class="page">
+          <div class="page-head">
+            <div class="page-head-main">
+              <h1 class="page-title">模型服务</h1>
+              <p class="page-desc">管理供应商与可用模型。</p>
+            </div>
+            <div class="page-actions" id="page-actions">
+              <button
+                class="btn btn-secondary"
+                type="button"
+                onclick="AppUI.toast('已触发全部供应商同步（演示）', 'success')"
+              >
+                <span class="icon" data-icon="refresh"></span>
+                同步全部
+              </button>
+              <button class="btn btn-primary" type="button" data-open="provider-drawer">
+                <span class="icon" data-icon="plus"></span>
+                新增供应商
+              </button>
+            </div>
+          </div>
+
+          <div class="ms-layout">
+            <!-- 供应商列表 -->
+            <section class="card">
+              <div class="card-head">
+                <div class="card-head-main">
+                  <h3 class="card-title">供应商</h3>
+                </div>
+                <div class="card-extra">
+                  <span class="fs-xs subtle" id="provider-summary">2 启用</span>
+                </div>
+              </div>
+              <div class="provider-list" id="provider-list"></div>
+              <div class="card-foot">
+                <button
+                  class="btn btn-ghost btn-sm btn-block"
+                  type="button"
+                  data-open="provider-drawer"
+                >
+                  <span class="icon" data-icon="plus"></span>
+                  新增供应商
+                </button>
+              </div>
+            </section>
+
+            <!-- 供应商详情 + 模型 -->
+            <section class="card">
+              <div class="ms-detail-head">
+                <div>
+                  <div class="ms-detail-title" id="detail-name">我的 DeepSeek</div>
+                  <div class="ms-detail-meta" id="detail-meta"></div>
+                </div>
+                <div class="ms-detail-actions">
+                  <button class="btn btn-secondary btn-sm" type="button" id="btn-sync">
+                    <span class="icon" data-icon="refresh"></span>
+                    同步模型
+                  </button>
+                  <button class="btn btn-secondary btn-sm" type="button" id="btn-edit-provider">
+                    编辑
+                  </button>
+                </div>
+              </div>
+
+              <div class="toolbar">
+                <div class="toolbar-left">
+                  <div class="input-icon search-input">
+                    <span class="icon" data-icon="search"></span>
+                    <input class="input" id="model-search" placeholder="搜索模型" />
+                  </div>
+                  <div class="segmented" id="category-filter">
+                    <button class="is-active" type="button" data-category="全部">全部</button>
+                    <button type="button" data-category="chat">对话</button>
+                    <button type="button" data-category="embedding">嵌入</button>
+                    <button type="button" data-category="其他">其他</button>
+                  </div>
+                </div>
+                <div class="toolbar-right">
+                  <button class="btn btn-ghost btn-sm" type="button" data-open="manual-modal">
+                    <span class="icon" data-icon="plus"></span>
+                    手动登记
+                  </button>
+                </div>
+              </div>
+
+              <div class="table-wrap">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>模型</th>
+                      <th>分类</th>
+                      <th>来源</th>
+                      <th>启用</th>
+                      <th>同步时间</th>
+                      <th class="th-actions">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="model-tbody"></tbody>
+                </table>
+              </div>
+              <div class="table-foot">
+                <span id="model-count">共 8 个模型</span>
+                <span class="spacer"></span>
+                <span class="fs-xs subtle">模型列表在线同步后自动分类</span>
+              </div>
+            </section>
+          </div>
+
+          <p class="quiet-note">API Key 加密存储，页面只展示掩码；统一调用网关在后台运行。</p>
+        </main>
+      </div>
+    </div>
+
+    <!-- 新增 / 编辑供应商 -->
+    <div class="drawer" id="provider-drawer" hidden>
+      <div class="drawer-backdrop" data-close="provider-drawer"></div>
+      <div class="drawer-panel">
+        <div class="drawer-head">
+          <div>
+            <h3 class="modal-title" id="provider-drawer-title">新增供应商</h3>
+            <p class="modal-sub">保存后自动尝试同步模型列表</p>
+          </div>
+          <button class="icon-btn" type="button" data-close="provider-drawer" aria-label="关闭">
+            <span class="icon" data-icon="x"></span>
+          </button>
+        </div>
+        <div class="drawer-body">
+          <div class="field">
+            <label class="field-label" for="p-template">供应商模板</label>
+            <div class="select-wrap">
+              <select class="select" id="p-template">
+                <option value="deepseek">DeepSeek</option>
+                <option value="openai">OpenAI</option>
+                <option value="zhipu">智谱 GLM</option>
+                <option value="moonshot">Moonshot Kimi</option>
+                <option value="dashscope">阿里云百炼</option>
+                <option value="siliconflow">硅基流动</option>
+                <option value="openrouter">OpenRouter</option>
+                <option value="ollama">Ollama（本地）</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="gemini">Google Gemini</option>
+              </select>
+            </div>
+          </div>
+          <div class="field mt-4">
+            <label class="field-label" for="p-name">配置名称</label>
+            <input class="input" id="p-name" placeholder="例如：我的 DeepSeek" />
+          </div>
+          <div class="field mt-4">
+            <label class="field-label" for="p-base">接口地址</label>
+            <input class="input" id="p-base" placeholder="https://api.deepseek.com/v1" />
+          </div>
+          <div class="field mt-4">
+            <label class="field-label" for="p-key">API Key</label>
+            <div class="input-suffix">
+              <input class="input" id="p-key" type="password" placeholder="输入供应商 API Key" />
+              <button
+                class="icon-btn"
+                type="button"
+                id="p-key-toggle"
+                aria-label="显示密钥"
+                style="position: absolute; right: 2px; top: 2px"
+              >
+                <span class="icon" data-icon="eye"></span>
+              </button>
+            </div>
+            <p class="field-help">加密保存，接口只返回掩码。</p>
+          </div>
+          <p class="field-error mt-4" id="provider-error" hidden></p>
+        </div>
+        <div class="drawer-foot">
+          <button class="btn btn-secondary" type="button" data-close="provider-drawer">取消</button>
+          <button class="btn" type="button" id="provider-save">保存并同步</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 参数规格 -->
+    <div class="drawer" id="spec-drawer" hidden>
+      <div class="drawer-backdrop" data-close="spec-drawer"></div>
+      <div class="drawer-panel">
+        <div class="drawer-head">
+          <div>
+            <h3 class="modal-title" id="spec-title">模型参数</h3>
+            <p class="modal-sub" id="spec-sub"></p>
+          </div>
+          <button class="icon-btn" type="button" data-close="spec-drawer" aria-label="关闭">
+            <span class="icon" data-icon="x"></span>
+          </button>
+        </div>
+        <div class="drawer-body">
+          <table class="table param-spec-table">
+            <thead>
+              <tr>
+                <th>参数</th>
+                <th>类型</th>
+                <th>范围</th>
+                <th>默认值</th>
+              </tr>
+            </thead>
+            <tbody id="spec-tbody"></tbody>
+          </table>
+          <p class="quiet-note">
+            调用时按参数白名单校验，非法参数整单拒绝；model / messages 由系统控制。
+          </p>
+        </div>
+        <div class="drawer-foot">
+          <button class="btn btn-secondary btn-block" type="button" data-close="spec-drawer">
+            关闭
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 手动登记模型 -->
+    <div class="modal" id="manual-modal" hidden>
+      <div class="modal-backdrop" data-close="manual-modal"></div>
+      <div class="modal-card modal-sm">
+        <div class="modal-head">
+          <div>
+            <h3 class="modal-title">手动登记模型</h3>
+            <p class="modal-sub">供应商未返回模型列表时使用</p>
+          </div>
+          <button class="icon-btn" type="button" data-close="manual-modal" aria-label="关闭">
+            <span class="icon" data-icon="x"></span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="field">
+            <label class="field-label" for="m-provider">供应商</label>
+            <div class="select-wrap">
+              <select class="select" id="m-provider"></select>
+            </div>
+          </div>
+          <div class="field mt-4">
+            <label class="field-label" for="m-id">模型 ID</label>
+            <input class="input" id="m-id" placeholder="例如 fast-chat-1" />
+          </div>
+          <div class="field mt-4">
+            <label class="field-label" for="m-category">分类</label>
+            <div class="select-wrap">
+              <select class="select" id="m-category">
+                <option value="chat">对话</option>
+                <option value="embedding">嵌入</option>
+                <option value="rerank">重排</option>
+                <option value="image">图像</option>
+                <option value="audio">音频</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-secondary" type="button" data-close="manual-modal">取消</button>
+          <button
+            class="btn"
+            type="button"
+            onclick="
+              AppUI.close('manual-modal')
+              AppUI.toast('模型已登记（演示）', 'success')
+            "
+          >
+            登记
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="assets/js/shell.js"></script>
+    <script>
+      ;(function () {
+        var providers = [
+          {
+            id: 1,
+            name: '我的 DeepSeek',
+            protocol: 'OpenAI 兼容',
+            baseUrl: 'https://api.deepseek.com/v1',
+            key: 'sk-****7f2a',
+            enabled: true,
+            lastSync: '5 分钟前',
+            models: [
+              {
+                modelId: 'deepseek-chat',
+                name: 'DeepSeek Chat',
+                category: 'chat',
+                source: '自动',
+                enabled: true,
+                time: '09:12',
+                params: [
+                  ['temperature', '数值', '0 – 2', '0.7'],
+                  ['max_tokens', '整数', '1 – 8192', '512'],
+                  ['top_p', '数值', '0 – 1', '0.95'],
+                ],
+              },
+              {
+                modelId: 'deepseek-reasoner',
+                name: 'DeepSeek Reasoner',
+                category: 'chat',
+                source: '自动',
+                enabled: true,
+                time: '09:12',
+                params: [
+                  ['temperature', '数值', '0 – 2', '0.6'],
+                  ['max_tokens', '整数', '1 – 8192', '1024'],
+                ],
+              },
+              {
+                modelId: 'deepseek-v3',
+                name: 'DeepSeek V3',
+                category: 'chat',
+                source: '自动',
+                enabled: true,
+                time: '09:12',
+                params: [
+                  ['temperature', '数值', '0 – 2', '0.7'],
+                  ['max_tokens', '整数', '1 – 8192', '512'],
+                ],
+              },
+              {
+                modelId: 'bge-embedding',
+                name: 'BGE Embedding',
+                category: 'embedding',
+                source: '手动',
+                enabled: false,
+                time: '10-28 21:40',
+                params: [['dimensions', '整数', '1024', '1024']],
+              },
+            ],
+          },
+          {
+            id: 2,
+            name: '通义千问 · 百炼',
+            protocol: 'OpenAI 兼容',
+            baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+            key: 'sk-****9c13',
+            enabled: true,
+            lastSync: '今天 09:12',
+            models: [
+              {
+                modelId: 'qwen-max',
+                name: 'Qwen Max',
+                category: 'chat',
+                source: '自动',
+                enabled: true,
+                time: '09:12',
+                params: [
+                  ['temperature', '数值', '0 – 2', '0.7'],
+                  ['max_tokens', '整数', '1 – 8192', '512'],
+                ],
+              },
+              {
+                modelId: 'qwen-plus',
+                name: 'Qwen Plus',
+                category: 'chat',
+                source: '自动',
+                enabled: true,
+                time: '09:12',
+                params: [
+                  ['temperature', '数值', '0 – 2', '0.7'],
+                  ['max_tokens', '整数', '1 – 8192', '512'],
+                ],
+              },
+              {
+                modelId: 'text-embedding-v4',
+                name: 'Text Embedding v4',
+                category: 'embedding',
+                source: '自动',
+                enabled: true,
+                time: '09:12',
+                params: [
+                  ['dimensions', '整数', '1024', '1024'],
+                  ['encoding_format', '枚举', 'float / base64', 'float'],
+                ],
+              },
+            ],
+          },
+          {
+            id: 3,
+            name: '本地 Ollama',
+            protocol: '本地',
+            baseUrl: 'http://127.0.0.1:11434/v1',
+            key: '无需 Key',
+            enabled: false,
+            lastSync: '昨天 21:40',
+            models: [
+              {
+                modelId: 'llama3',
+                name: 'Llama 3',
+                category: 'chat',
+                source: '自动',
+                enabled: false,
+                time: '昨天 21:40',
+                params: [
+                  ['temperature', '数值', '0 – 2', '0.7'],
+                  ['max_tokens', '整数', '1 – 4096', '512'],
+                ],
+              },
+              {
+                modelId: 'nomic-embed',
+                name: 'Nomic Embed',
+                category: 'embedding',
+                source: '自动',
+                enabled: false,
+                time: '昨天 21:40',
+                params: [['dimensions', '整数', '768', '768']],
+              },
+            ],
+          },
+        ]
+
+        var currentId = 1
+        var category = '全部'
+
+        var listEl = document.getElementById('provider-list')
+        var tbody = document.getElementById('model-tbody')
+
+        function providerById(id) {
+          return providers.filter(function (p) {
+            return p.id === id
+          })[0]
+        }
+
+        function renderProviders() {
+          listEl.innerHTML = providers
+            .map(function (p) {
+              var count = p.models.length
+              return (
+                '<button class="provider-item' +
+                (p.id === currentId ? ' is-active' : '') +
+                '" type="button" data-provider="' +
+                p.id +
+                '">' +
+                '<span class="p-main"><div class="p-name">' +
+                AppUI.escape(p.name) +
+                '</div>' +
+                '<div class="p-meta">' +
+                AppUI.escape(p.protocol) +
+                ' · ' +
+                count +
+                ' 个模型</div></span>' +
+                '<span class="p-side"><span class="status-dot ' +
+                (p.enabled ? 'is-ok' : 'is-idle') +
+                '"></span></span>' +
+                '</button>'
+              )
+            })
+            .join('')
+
+          listEl.querySelectorAll('[data-provider]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              currentId = parseInt(btn.getAttribute('data-provider'), 10)
+              category = '全部'
+              document.querySelectorAll('#category-filter button').forEach(function (b) {
+                b.classList.toggle('is-active', b.getAttribute('data-category') === '全部')
+              })
+              document.getElementById('model-search').value = ''
+              renderProviders()
+              renderDetail()
+              renderModels()
+            })
+          })
+
+          var enabled = providers.filter(function (p) {
+            return p.enabled
+          }).length
+          document.getElementById('provider-summary').textContent = enabled + ' 启用'
+        }
+
+        function renderDetail() {
+          var p = providerById(currentId)
+          document.getElementById('detail-name').textContent = p.name
+          document.getElementById('detail-meta').textContent =
+            p.protocol + ' · ' + p.baseUrl + ' · ' + p.key + ' · 同步于 ' + p.lastSync
+        }
+
+        function filteredModels() {
+          var keyword = document.getElementById('model-search').value.trim().toLowerCase()
+          return providerById(currentId).models.filter(function (m) {
+            var matchCategory =
+              category === '全部' ||
+              (category === '其他'
+                ? !['chat', 'embedding'].includes(m.category)
+                : m.category === category)
+            var matchKeyword =
+              !keyword ||
+              m.name.toLowerCase().indexOf(keyword) >= 0 ||
+              m.modelId.toLowerCase().indexOf(keyword) >= 0
+            return matchCategory && matchKeyword
+          })
+        }
+
+        function renderModels() {
+          var models = filteredModels()
+          tbody.innerHTML = models.length
+            ? models
+                .map(function (m) {
+                  var catLabel =
+                    m.category === 'chat' ? '对话' : m.category === 'embedding' ? '嵌入' : '其他'
+                  var catClass =
+                    m.category === 'chat'
+                      ? 'badge-info'
+                      : m.category === 'embedding'
+                        ? 'badge-teal'
+                        : 'badge-neutral'
+                  return (
+                    '<tr>' +
+                    '<td><div class="cell-main"><span class="cell-icon">' +
+                    AppUI.icon('cpu') +
+                    '</span>' +
+                    '<div><div class="cell-title">' +
+                    AppUI.escape(m.name) +
+                    '</div>' +
+                    '<div class="cell-sub mono">' +
+                    AppUI.escape(m.modelId) +
+                    '</div></div></div></td>' +
+                    '<td><span class="badge ' +
+                    catClass +
+                    '">' +
+                    catLabel +
+                    '</span></td>' +
+                    '<td><span class="fs-sm muted">' +
+                    AppUI.escape(m.source) +
+                    '</span></td>' +
+                    '<td><label class="switch"><input type="checkbox" ' +
+                    (m.enabled ? 'checked' : '') +
+                    ' data-model="' +
+                    AppUI.escape(m.modelId) +
+                    '" /><span class="switch-track"></span></label></td>' +
+                    '<td class="num">' +
+                    AppUI.escape(m.time) +
+                    '</td>' +
+                    '<td><div class="cell-actions"><button class="icon-btn" type="button" data-tip="参数规格" ' +
+                    'data-open="spec-drawer" data-spec="' +
+                    AppUI.escape(m.modelId) +
+                    '">' +
+                    AppUI.icon('sliders') +
+                    '</button></div></td>' +
+                    '</tr>'
+                  )
+                })
+                .join('')
+            : '<tr><td colspan="6"><div class="empty" style="padding: 32px"><p>没有匹配的模型</p></div></td></tr>'
+
+          document.getElementById('model-count').textContent = '共 ' + models.length + ' 个模型'
+
+          tbody.querySelectorAll('.switch input').forEach(function (input) {
+            input.addEventListener('change', function () {
+              AppUI.toast(
+                '模型『' +
+                  input.getAttribute('data-model') +
+                  '』已' +
+                  (input.checked ? '启用' : '停用') +
+                  '（演示）',
+                'success',
+              )
+            })
+          })
+          tbody.querySelectorAll('[data-spec]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              renderSpec(btn.getAttribute('data-spec'))
+            })
+          })
+        }
+
+        function renderSpec(modelId) {
+          var p = providerById(currentId)
+          var model = p.models.filter(function (m) {
+            return m.modelId === modelId
+          })[0]
+          if (!model) return
+          document.getElementById('spec-title').textContent = model.name
+          document.getElementById('spec-sub').textContent = p.name + ' · ' + model.modelId
+          document.getElementById('spec-tbody').innerHTML = model.params
+            .map(function (row) {
+              return (
+                '<tr><td class="mono">' +
+                row[0] +
+                '</td><td>' +
+                row[1] +
+                '</td><td>' +
+                row[2] +
+                '</td><td class="mono">' +
+                row[3] +
+                '</td></tr>'
+              )
+            })
+            .join('')
+        }
+
+        document.getElementById('model-search').addEventListener('input', renderModels)
+        document.querySelectorAll('#category-filter button').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            category = btn.getAttribute('data-category')
+            document.querySelectorAll('#category-filter button').forEach(function (b) {
+              b.classList.toggle('is-active', b === btn)
+            })
+            renderModels()
+          })
+        })
+
+        document.getElementById('btn-sync').addEventListener('click', function () {
+          AppUI.toast('正在同步模型列表…', 'info')
+          setTimeout(function () {
+            AppUI.toast('模型列表已更新（演示）', 'success')
+          }, 900)
+        })
+
+        document.getElementById('btn-edit-provider').addEventListener('click', function () {
+          var p = providerById(currentId)
+          document.getElementById('provider-drawer-title').textContent = '编辑供应商'
+          document.getElementById('p-name').value = p.name
+          document.getElementById('p-base').value = p.baseUrl
+          AppUI.open('provider-drawer')
+        })
+
+        document.getElementById('p-key-toggle').addEventListener('click', function () {
+          var key = document.getElementById('p-key')
+          var show = key.type === 'password'
+          key.type = show ? 'text' : 'password'
+          this.querySelector('.icon').outerHTML = AppUI.icon(show ? 'eye-off' : 'eye')
+        })
+
+        document.getElementById('provider-save').addEventListener('click', function () {
+          var name = document.getElementById('p-name').value.trim()
+          var key = document.getElementById('p-key').value.trim()
+          var error = document.getElementById('provider-error')
+          error.hidden = true
+          if (!name) {
+            error.textContent = '请输入配置名称'
+            error.hidden = false
+            return
+          }
+          if (!key) {
+            error.textContent = '请输入 API Key'
+            error.hidden = false
+            return
+          }
+          AppUI.close('provider-drawer')
+          AppUI.toast('已保存并触发模型同步（演示）', 'success')
+        })
+
+        var manualSelect = document.getElementById('m-provider')
+        manualSelect.innerHTML = providers
+          .map(function (p) {
+            return '<option value="' + p.id + '">' + AppUI.escape(p.name) + '</option>'
+          })
+          .join('')
+
+        // 点击「新增供应商」时重置抽屉表单
+        document.querySelectorAll('[data-open="provider-drawer"]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            document.getElementById('provider-drawer-title').textContent = '新增供应商'
+            document.getElementById('p-name').value = ''
+            document.getElementById('p-base').value = ''
+            document.getElementById('p-key').value = ''
+            document.getElementById('provider-error').hidden = true
+          })
+        })
+
+        renderProviders()
+        renderDetail()
+        renderModels()
+
+        if (location.search.indexOf('action=new') >= 0) {
+          AppUI.open('provider-drawer')
+        }
+      })()
+    </script>
+  </body>
+</html>

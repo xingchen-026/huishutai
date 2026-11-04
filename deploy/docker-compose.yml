@@ -19,7 +19,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  
+
   # ==================== Milvus 依赖：etcd ====================
   etcd:
     image: quay.io/coreos/etcd:v3.5.18
@@ -41,7 +41,7 @@ services:
 
   # ==================== Milvus 依赖：MinIO ====================
   minio:
-    image: minio/minio:RELEASE.2024-12-18T13-15-44Z
+    image: milvusdb/minio:RELEASE.2024-12-18T13-15-44Z
     container_name: huishutai-minio
     restart: always
     environment:
@@ -100,10 +100,10 @@ services:
     depends_on:
       milvus:
         condition: service_healthy
-  
+
     # ==================== 业务文件对象存储（独立 MinIO，与 Milvus 的 minio 隔离） ====================
   minio-files:
-    image: minio/minio:RELEASE.2024-12-18T13-15-44Z
+    image: milvusdb/minio:RELEASE.2024-12-18T13-15-44Z
     container_name: huishutai-minio-files
     restart: always
     environment:
@@ -121,7 +121,7 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
-  
+
     # ======== 后端 =========
   backend:
     build:

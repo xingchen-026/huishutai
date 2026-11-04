@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>登录 · 汇书台原型</title>
+    <link rel="stylesheet" href="assets/css/tokens.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <link rel="stylesheet" href="assets/css/pages.css" />
+  </head>
+  <body data-layout="auth" data-page="login" data-title="登录">
+    <div class="auth-page">
+      <aside class="auth-brand">
+        <a class="brand" href="index.html">
+          <span class="brand-mark">
+            <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <defs>
+                <linearGradient
+                  id="hs-login-g"
+                  x1="0"
+                  y1="0"
+                  x2="32"
+                  y2="32"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop stop-color="#5B8CFF" />
+                  <stop offset="0.55" stop-color="#3B6CF6" />
+                  <stop offset="1" stop-color="#0EB6A6" />
+                </linearGradient>
+              </defs>
+              <rect width="32" height="32" rx="9" fill="url(#hs-login-g)" />
+              <path
+                d="M9.5 10.5h6.2a2 2 0 0 1 2 2v9.4a2.6 2.6 0 0 0-2.6-2.6H9.5z"
+                fill="#fff"
+                opacity=".95"
+              />
+              <path
+                d="M22.5 10.5h-6.2a2 2 0 0 0-2 2v9.4a2.6 2.6 0 0 1 2.6-2.6h5.6z"
+                fill="#fff"
+                opacity=".68"
+              />
+              <circle cx="22.6" cy="9.4" r="1.5" fill="#8FF7E8" />
+            </svg>
+          </span>
+          <span class="brand-text"
+            ><strong>汇书台</strong><span class="brand-sub">AI Workspace</span></span
+          >
+        </a>
+
+        <h1 class="auth-title">把 AI 能力<br />做成可用的应用</h1>
+        <p class="auth-subtitle">从知识库到模型服务，一个工作台完成。</p>
+
+        <div class="auth-brand-foot">汇书台 · AI 应用落地技术整合实践</div>
+      </aside>
+
+      <section class="auth-panel">
+        <div class="auth-card">
+          <div class="auth-card-head">
+            <h2 class="auth-card-title">登录</h2>
+            <p class="auth-card-desc">使用你的账号继续。</p>
+          </div>
+
+          <form id="login-form" novalidate>
+            <div class="form-grid">
+              <div class="field">
+                <label class="field-label" for="login-username">用户名</label>
+                <div class="input-icon">
+                  <span class="icon" data-icon="user"></span>
+                  <input
+                    class="input"
+                    id="login-username"
+                    placeholder="请输入用户名"
+                    autocomplete="username"
+                  />
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="login-password">密码</label>
+                <div class="input-icon">
+                  <span class="icon" data-icon="lock"></span>
+                  <input
+                    class="input"
+                    id="login-password"
+                    type="password"
+                    placeholder="请输入密码"
+                    autocomplete="current-password"
+                    style="padding-right: 42px"
+                  />
+                  <div class="input-extra">
+                    <button class="icon-btn" type="button" id="pwd-toggle" aria-label="显示密码">
+                      <span class="icon" data-icon="eye"></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p class="field-error mt-3" id="login-error" hidden></p>
+
+            <label class="check mt-4"><input type="checkbox" checked /> 保持登录</label>
+
+            <button class="btn btn-block btn-lg mt-4" type="submit" id="login-submit">登录</button>
+          </form>
+
+          <p class="auth-switch">还没有账号？<a href="register.html">注册</a></p>
+          <p class="quiet-note" style="text-align: center">演示原型 · 任意账号可直接登录</p>
+          <p class="auth-switch" style="margin-top: 6px">
+            <a class="subtle" href="index.html" style="font-size: var(--fs-xs)">原型总览</a>
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <script src="assets/js/shell.js"></script>
+    <script>
+      ;(function () {
+        var form = document.getElementById('login-form')
+        var username = document.getElementById('login-username')
+        var password = document.getElementById('login-password')
+        var error = document.getElementById('login-error')
+        var submit = document.getElementById('login-submit')
+
+        function showError(msg) {
+          error.textContent = msg
+          error.hidden = false
+          username.classList.toggle('is-error', msg.indexOf('用户名') >= 0)
+          password.classList.toggle('is-error', msg.indexOf('密码') >= 0)
+        }
+
+        function clearError() {
+          error.hidden = true
+          username.classList.remove('is-error')
+          password.classList.remove('is-error')
+        }
+
+        document.getElementById('pwd-toggle').addEventListener('click', function () {
+          var btn = document.getElementById('pwd-toggle')
+          var show = password.type === 'password'
+          password.type = show ? 'text' : 'password'
+          btn.querySelector('.icon').outerHTML = AppUI.icon(show ? 'eye-off' : 'eye')
+        })
+
+        form.addEventListener('submit', function (e) {
+          e.preventDefault()
+          clearError()
+          if (!username.value.trim()) return showError('请输入用户名')
+          if (!password.value) return showError('请输入密码')
+          submit.disabled = true
+          submit.textContent = '登录中…'
+          setTimeout(function () {
+            location.href = 'home.html'
+          }, 500)
+        })
+
+        if (location.search.indexOf('logout=1') >= 0) {
+          AppUI.toast('已退出登录', 'info')
+        }
+      })()
+    </script>
+  </body>
+</html>
