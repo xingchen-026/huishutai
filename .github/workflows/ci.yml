@@ -139,7 +139,16 @@ jobs:
           tags: huishutai-backend:ci
 
       - name: 后端镜像冒烟检查
-        run: docker run --rm --entrypoint python huishutai-backend:ci manage.py check
+        env:
+          DJANGO_DEBUG: "false"
+          DJANGO_SECRET_KEY: ci-only-insecure-key-for-tests
+          LLMAPI_ENCRYPTION_KEY: VZBfDQ5qInfqe-7mTZ1ecFXcfClQneRcxaTZqEaMt04=
+        run: >
+          docker run --rm
+          -e DJANGO_DEBUG
+          -e DJANGO_SECRET_KEY
+          -e LLMAPI_ENCRYPTION_KEY
+          --entrypoint python huishutai-backend:ci manage.py check
 
       - name: 构建前端镜像
         uses: docker/build-push-action@v6
