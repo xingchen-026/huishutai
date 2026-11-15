@@ -21,4 +21,5 @@ urlpatterns = [
     path("files/upload/", file_upload, name="file-upload"),
     path("routes/", route_list, name="route-list"),
     path("llm/", include("LLMapi.urls")),
+    path("workflow/", include("Workflow.urls")),
 ]

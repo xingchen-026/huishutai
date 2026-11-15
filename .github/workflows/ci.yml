@@ -42,6 +42,9 @@ jobs:
       POSTGRES_PASSWORD: postgres
       POSTGRES_HOST: 127.0.0.1
       POSTGRES_PORT: "5432"
+      DJANGO_SECRET_KEY: ci-only-insecure-key-for-tests
+      DJANGO_DEBUG: "false"
+      LLMAPI_ENCRYPTION_KEY: VZBfDQ5qInfqe-7mTZ1ecFXcfClQneRcxaTZqEaMt04=
     steps:
       - uses: actions/checkout@v4
 
@@ -70,6 +73,8 @@ jobs:
         run: uv run python manage.py makemigrations --check --dry-run
 
       - name: 运行后端测试
+        env:
+          DJANGO_SETTINGS_MODULE: tests.settings
         run: uv run python manage.py test --verbosity 2
 
   # ==================== 前端：Lint + 格式 + 类型 + 构建 ====================
@@ -97,6 +102,9 @@ jobs:
 
       - name: Prettier 格式检查
         run: npm run format:check
+
+      - name: 前端测试
+        run: npm test
 
       - name: 类型检查
         run: npm run type-check

@@ -332,17 +332,12 @@ uv sync                               # 安装依赖，生成/复用 .venv
 
 本地直跑时默认连接 `127.0.0.1:5432` 的 PostgreSQL、`http://127.0.0.1:19530` 的 Milvus、`127.0.0.1:9004` 的 MinIO；数据库密码与 MinIO 账号需通过环境变量提供，请在**同一终端**中先设置（PowerShell 示例）：
 
-```powershell
-$env:POSTGRES_PASSWORD = "123456"                       # 与 deploy/.env 一致
-$env:MINIO_ACCESS_KEY = "huishutai_files"               # 即 deploy/.env 的 MINIO_ROOT_USER
-$env:MINIO_SECRET_KEY = "ChangeMe_Strong_123"           # 即 deploy/.env 的 MINIO_ROOT_PASSWORD
-```
 
 ```bash
 uv run python manage.py migrate       # 初始化数据库表
 uv run python manage.py init_storage  # 检查 MinIO 并创建 bucket（幂等）
 uv run python manage.py init_vectordb # 初始化向量集合（需 Milvus 可用）
-uv run python manage.py runserver 0.0.0.0:8000
+uv run --env-file "..\deploy\.env" python manage.py runserver 0.0.0.0:8000
 ```
 
 > 若使用其他 MinIO 地址或端口，可覆盖 `MINIO_ENDPOINT`、`MINIO_PUBLIC_ENDPOINT`、`MINIO_BUCKET` 等变量（见「环境变量」）。

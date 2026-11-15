@@ -41,6 +41,18 @@ const router = createRouter({
           meta: { title: '模型服务' },
         },
         {
+          path: 'workflows',
+          name: 'workflows',
+          component: () => import('@/views/WorkflowListView.vue'),
+          meta: { title: '工作流' },
+        },
+        {
+          path: 'workflows/:id',
+          name: 'workflow-editor',
+          component: () => import('@/views/WorkflowEditorView.vue'),
+          meta: { title: '工作流编辑器' },
+        },
+        {
           path: 'profile',
           name: 'profile',
           component: () => import('@/views/ProfileView.vue'),

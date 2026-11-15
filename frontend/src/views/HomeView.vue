@@ -11,10 +11,10 @@ interface AppEntry {
 const apps: AppEntry[] = [
   { title: '知识库', desc: '上传文档，检索与问答', icon: 'book', to: '/knowledge' },
   { title: '模型服务', desc: '配置供应商，管理可用模型', icon: 'cpu', to: '/models' },
+  { title: '工作流', desc: '无限画布编排 AI 与 HTTP 能力', icon: 'workflow', to: '/workflows' },
   { title: 'Agent 编排', desc: '多步骤任务与工具调用', icon: 'sparkles' },
   { title: '文生图', desc: '文本生成图像', icon: 'image' },
   { title: '文生视频', desc: '文本生成视频', icon: 'film' },
-  { title: '更多应用', desc: '按模块逐步接入', icon: 'plus' },
 ]
 </script>
 

@@ -89,7 +89,7 @@ class CryptoTest(SimpleTestCase):
             with self.assertRaisesMessage(ValueError, "解密失败"):
                 crypto.decrypt_api_key(token)
 
-    @override_settings(LLMAPI_ENCRYPTION_KEY="")
+    @override_settings(LLMAPI_ENCRYPTION_KEY="", DEBUG=True)
     def test_derive_key_from_secret_key(self):
         reset_crypto_cache()
         token = crypto.encrypt_api_key("sk-derived-key")

@@ -6,8 +6,13 @@
 """
 
 import logging
+import os
 
 from cryptography.fernet import Fernet
+
+# 必须在 import config.settings 之前注入，避免生产强制校验阻断测试
+os.environ.setdefault("DJANGO_DEBUG", "true")
+os.environ.setdefault("DJANGO_SECRET_KEY", "test-only-insecure-key")
 
 from config.settings import *  # noqa: F401,F403
 

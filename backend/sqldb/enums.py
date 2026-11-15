@@ -7,4 +7,5 @@ class DBStatus(IntEnum):
     DUPLICATE_ERR = 1002  # 唯一键冲突
     PARAM_ERR = 1003  # 参数/业务校验不通过
     SERVICE_ERR = 1004  # 外部服务异常（MinIO/Milvus 等）
+    CONFLICT = 1005  # 并发冲突（乐观锁版本不一致）
     UNKNOWN_ERR = 9999  # 数据库异常

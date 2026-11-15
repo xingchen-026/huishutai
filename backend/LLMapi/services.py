@@ -10,9 +10,7 @@
 
 from __future__ import annotations
 
-import ipaddress
 import logging
-from urllib.parse import urlparse
 
 from django.conf import settings
 from django.db import transaction
@@ -34,6 +32,7 @@ from LLMapi.templates import get_template, list_templates
 from sqldb.crud import llm_model_crud, llm_provider_crud
 from sqldb.enums import DBStatus
 from sqldb.result import DBResult
+from url_safety import UnsafeUrlError, validate_http_url
 
 logger = logging.getLogger(__name__)
 
@@ -70,20 +69,10 @@ def _check_base_url(raw: str) -> tuple[str | None, str | None]:
     value = (raw or "").strip().rstrip("/")
     if not value:
         return None, "供应商地址不能为空"
-    parsed = urlparse(value)
-    if parsed.scheme not in ("http", "https") or not parsed.netloc:
-        return None, "供应商地址必须是 http(s) URL"
-    if parsed.username or parsed.password:
-        return None, "供应商地址不能包含用户名密码"
-    if not settings.LLMAPI_ALLOW_PRIVATE_BASE_URL:
-        host = (parsed.hostname or "").lower()
-        try:
-            ip = ipaddress.ip_address(host)
-            if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_unspecified:
-                return None, "不允许配置内网/本机地址"
-        except ValueError:
-            if host in ("localhost",) or host.endswith(".local"):
-                return None, "不允许配置内网/本机地址"
+    try:
+        value = validate_http_url(value, allow_private=settings.LLMAPI_ALLOW_PRIVATE_BASE_URL)
+    except UnsafeUrlError as exc:
+        return None, str(exc)
     return value, None
 
 

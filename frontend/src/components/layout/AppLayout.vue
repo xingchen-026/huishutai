@@ -26,6 +26,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: 'home', label: '首页', icon: 'home', to: '/home' },
       { id: 'knowledge', label: '知识库', icon: 'book', to: '/knowledge' },
+      { id: 'workflows', label: '工作流', icon: 'workflow', to: '/workflows' },
     ],
   },
   {

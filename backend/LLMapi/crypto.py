@@ -25,13 +25,15 @@ def _get_fernet() -> Fernet:
     configured = (settings.LLMAPI_ENCRYPTION_KEY or "").strip()
     if configured:
         raw_key = configured.encode("utf-8")
-    else:
+    elif settings.DEBUG:
         digest = hashlib.sha256(f"llmapi-key:{settings.SECRET_KEY}".encode("utf-8")).digest()
         raw_key = base64.urlsafe_b64encode(digest)
         logger.warning(
             "LLMAPI_ENCRYPTION_KEY 未配置，当前使用 SECRET_KEY 派生密钥；"
             "生产环境请显式配置，否则更换 SECRET_KEY 会导致已存 Key 无法解密"
         )
+    else:
+        raise ValueError("LLMAPI_ENCRYPTION_KEY 未配置，生产环境禁止回退 SECRET_KEY 派生")
     try:
         _fernet = Fernet(raw_key)
     except (ValueError, TypeError) as exc:

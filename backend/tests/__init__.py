@@ -1,4 +1,4 @@
-"""LLMapi 及核心接口的回归测试包。
+"""LLMapi 与 Workflow 回归测试包。
 
 运行方式（在 backend/ 目录下）：
     # 无 PostgreSQL 时用 SQLite 测试配置

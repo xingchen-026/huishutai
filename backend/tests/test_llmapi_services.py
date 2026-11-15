@@ -229,7 +229,6 @@ class CreateProviderTest(TestCase):
         provider = LLMProviderConfig.objects.get(user=self.user)
         self.assertTrue(provider.last_sync_error)
 
-    @unittest.expectedFailure
     def test_base_url_with_query_should_be_rejected(self):
         """已知缺陷：_check_base_url 允许 base_url 携带 query/fragment，拼接接口路径后会变成非法 URL。"""
         fake = FakeAdapter(models=[])

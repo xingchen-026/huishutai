@@ -12,6 +12,7 @@ import requests
 from django.conf import settings
 
 from LLMapi.result import LLMStatus
+from url_safety import UnsafeUrlError, validate_http_url
 
 
 @dataclass(frozen=True)
@@ -79,6 +80,10 @@ def _request(
     params: dict | None = None,
 ) -> Any:
     try:
+        try:
+            url = validate_http_url(url, allow_private=settings.LLMAPI_ALLOW_PRIVATE_BASE_URL)
+        except UnsafeUrlError as exc:
+            raise ProviderError(LLMStatus.PARAM_ERR, str(exc)) from exc
         response = requests.request(
             method,
             url,
@@ -86,6 +91,7 @@ def _request(
             json=json_body,
             params=params,
             timeout=(5, settings.LLMAPI_HTTP_TIMEOUT),
+            allow_redirects=False,
         )
     except requests.Timeout as exc:
         raise ProviderError(LLMStatus.PROVIDER_UNREACHABLE, "连接供应商超时") from exc
@@ -93,6 +99,13 @@ def _request(
         raise ProviderError(
             LLMStatus.PROVIDER_UNREACHABLE, "无法连接供应商，请检查 base_url 或网络"
         ) from exc
+
+    if 300 <= response.status_code < 400:
+        raise ProviderError(
+            LLMStatus.PROVIDER_API_ERR,
+            "供应商返回了重定向，已拒绝跟随",
+            upstream_status=response.status_code,
+        )
 
     if response.status_code in (401, 403):
         raise ProviderError(

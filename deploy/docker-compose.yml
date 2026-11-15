@@ -135,7 +135,9 @@ services:
         POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
         POSTGRES_HOST: db
         MILVUS_URI: http://milvus:19530
-        DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,backend
+        DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-}
+        DJANGO_DEBUG: ${DJANGO_DEBUG:-false}
+        DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,backend}
         # ===== 文件对象存储（内部地址给后端，public 地址给签名 URL） =====
         MINIO_ENDPOINT: minio-files:9000
         MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-127.0.0.1:9004}
@@ -148,7 +150,7 @@ services:
         MAX_UPLOAD_SIZE: ${MAX_UPLOAD_SIZE:-52428800}
         LLMAPI_ENCRYPTION_KEY: ${LLMAPI_ENCRYPTION_KEY:-}
         LLMAPI_HTTP_TIMEOUT: ${LLMAPI_HTTP_TIMEOUT:-30}
-        LLMAPI_ALLOW_PRIVATE_BASE_URL: ${LLMAPI_ALLOW_PRIVATE_BASE_URL:-true}
+        LLMAPI_ALLOW_PRIVATE_BASE_URL: ${LLMAPI_ALLOW_PRIVATE_BASE_URL:-false}
     depends_on:
       db:
         condition: service_healthy

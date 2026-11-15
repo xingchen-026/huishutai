@@ -3,6 +3,7 @@ import { computed, type Component } from 'vue'
 import {
   AlertCircle,
   AlertTriangle,
+  ArrowLeft,
   ArrowRight,
   BookOpen,
   Check,
@@ -13,12 +14,15 @@ import {
   Clock,
   Copy,
   Cpu,
+  Download,
   ExternalLink,
   Eye,
   EyeOff,
   FileText,
   Film,
   Folder,
+  GitBranch,
+  Globe,
   Home,
   Image,
   Info,
@@ -32,6 +36,7 @@ import {
   Package,
   PanelLeft,
   Pencil,
+  Play,
   Plus,
   RefreshCw,
   Search,
@@ -42,6 +47,7 @@ import {
   Trash2,
   Upload,
   User,
+  Workflow,
   X,
 } from '@lucide/vue'
 
@@ -50,6 +56,11 @@ const props = defineProps<{ name: string }>()
 /** 语义名 → Lucide 组件；新增图标在这里补一行即可 */
 const ICONS: Record<string, Component> = {
   home: Home,
+  workflow: Workflow,
+  'arrow-left': ArrowLeft,
+  play: Play,
+  globe: Globe,
+  branch: GitBranch,
   book: BookOpen,
   cpu: Cpu,
   upload: Upload,
@@ -91,6 +102,7 @@ const ICONS: Record<string, Component> = {
   check: Check,
   box: Package,
   dot: Circle,
+  download: Download,
 }
 
 const icon = computed<Component>(() => ICONS[props.name] ?? Circle)

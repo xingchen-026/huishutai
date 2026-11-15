@@ -157,3 +157,132 @@ class LLMModel(models.Model):
         indexes = [
             models.Index(fields=["provider", "category"], name="llm_model_provider_cat_idx"),
         ]
+
+
+# ==================== 工作流 ====================
+
+
+class Workflow(models.Model):
+    """工作流主体。节点/连线/事件拆表存储，JSON 仅用于导入导出。"""
+
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="workflows", verbose_name="创建人"
+    )
+    name = models.CharField(max_length=100, verbose_name="名称")
+    description = models.CharField(max_length=500, blank=True, default="", verbose_name="描述")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="更新时间")
+
+    class Meta:
+        db_table = "workflow"
+        verbose_name = "工作流"
+        verbose_name_plural = verbose_name
+        ordering = ["-updated_at"]
+        indexes = [models.Index(fields=["owner"], name="workflow_owner_idx")]
+
+
+class WorkflowMember(models.Model):
+    """工作流协作成员（创建人不在本表，以 owner 判定）。"""
+
+    ROLE_CHOICES = (("editor", "可编辑"), ("viewer", "只读"))
+
+    workflow = models.ForeignKey(
+        Workflow, on_delete=models.CASCADE, related_name="members", verbose_name="工作流"
+    )
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="workflow_memberships", verbose_name="成员"
+    )
+    role = models.CharField(
+        max_length=10, choices=ROLE_CHOICES, default="editor", verbose_name="角色"
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="加入时间")
+
+    class Meta:
+        db_table = "workflow_member"
+        verbose_name = "工作流成员"
+        verbose_name_plural = verbose_name
+        ordering = ["created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["workflow", "user"], name="uniq_workflow_member"),
+        ]
+
+
+class WorkflowNode(models.Model):
+    """工作流节点。key 是工作流内的业务键（前端画布节点 id）。"""
+
+    workflow = models.ForeignKey(
+        Workflow, on_delete=models.CASCADE, related_name="nodes", verbose_name="工作流"
+    )
+    key = models.CharField(max_length=64, verbose_name="节点业务键")
+    node_type = models.CharField(max_length=64, verbose_name="节点类型")
+    name = models.CharField(max_length=100, blank=True, default="", verbose_name="节点名称")
+    position_x = models.FloatField(default=0, verbose_name="画布 X")
+    position_y = models.FloatField(default=0, verbose_name="画布 Y")
+    config = models.JSONField(default=dict, blank=True, verbose_name="节点参数")
+    version = models.IntegerField(default=1, verbose_name="乐观锁版本")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="更新时间")
+
+    class Meta:
+        db_table = "workflow_node"
+        verbose_name = "工作流节点"
+        verbose_name_plural = verbose_name
+        ordering = ["created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["workflow", "key"], name="uniq_workflow_node_key"),
+        ]
+        indexes = [
+            models.Index(fields=["workflow", "node_type"], name="workflow_node_type_idx"),
+        ]
+
+
+class WorkflowEdge(models.Model):
+    """工作流连线。不建外键到节点表，删除节点时由业务层按 key 清理。"""
+
+    workflow = models.ForeignKey(
+        Workflow, on_delete=models.CASCADE, related_name="edges", verbose_name="工作流"
+    )
+    source_key = models.CharField(max_length=64, verbose_name="源节点键")
+    source_port = models.CharField(max_length=64, default="out", verbose_name="源端口")
+    target_key = models.CharField(max_length=64, verbose_name="目标节点键")
+    target_port = models.CharField(max_length=64, default="in", verbose_name="目标端口")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
+
+    class Meta:
+        db_table = "workflow_edge"
+        verbose_name = "工作流连线"
+        verbose_name_plural = verbose_name
+        ordering = ["created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["workflow", "source_key", "source_port", "target_key", "target_port"],
+                name="uniq_workflow_edge",
+            ),
+        ]
+        indexes = [models.Index(fields=["workflow"], name="workflow_edge_wf_idx")]
+
+
+class WorkflowEvent(models.Model):
+    """工作流操作事件日志（自增 id 作为协作同步序号）。"""
+
+    workflow = models.ForeignKey(
+        Workflow, on_delete=models.CASCADE, related_name="events", verbose_name="工作流"
+    )
+    actor = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="workflow_events",
+        verbose_name="操作人",
+    )
+    op = models.CharField(max_length=32, verbose_name="操作类型")
+    payload = models.JSONField(default=dict, blank=True, verbose_name="操作数据")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="发生时间")
+
+    class Meta:
+        db_table = "workflow_event"
+        verbose_name = "工作流事件"
+        verbose_name_plural = verbose_name
+        ordering = ["id"]
+        indexes = [models.Index(fields=["workflow", "id"], name="workflow_event_wf_idx")]

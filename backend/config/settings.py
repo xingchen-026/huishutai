@@ -13,20 +13,32 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+DEBUG = os.environ.get("DJANGO_DEBUG", "false").lower() in ("1", "true", "yes", "on")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-42^py9pjv-@3bw+vsl2+^h03ru+u6neh2&u4*9@m%7nb3#!(7("
+_SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "").strip()
+if not _SECRET_KEY:
+    if DEBUG:
+        _SECRET_KEY = "django-insecure-dev-only-do-not-use-in-production"
+    else:
+        raise ImproperlyConfigured("生产环境必须配置 DJANGO_SECRET_KEY")
+SECRET_KEY = _SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+    if host.strip()
+]
 
 
 # Application definition
@@ -46,6 +58,7 @@ INSTALLED_APPS = [
     "RAG",
     "LLMapi",
     "files",
+    "Workflow",
 ]
 
 MIDDLEWARE = [
@@ -133,11 +146,10 @@ STATIC_URL = "static/"
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    "default": {
-        "BACKEND": "django.core.mail.backends.console.EmailBackend",
-    },
-}
+if DEBUG:
+    MAILERS = {
+        "default": {"BACKEND": "django.core.mail.backends.console.EmailBackend"},
+    }
 
 # DRF 全局配置：
 # 认证用签名 Token（Authorization: Bearer <token>），默认所有接口都要求登录；
@@ -150,6 +162,21 @@ REST_FRAMEWORK = {
         "user.auth.IsLoginUser",
     ],
 }
+# =================== 生产安全开关 ============================
+SECURE_SSL_REDIRECT = os.environ.get("DJANGO_SECURE_SSL_REDIRECT", "false").lower() in (
+    "1",
+    "true",
+    "yes",
+    "on",
+)
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_HSTS_SECONDS = 0 if DEBUG else 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
+SECURE_HSTS_PRELOAD = not DEBUG
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 # ==================== 向量数据库（Milvus） ====================
 # 宿主机直跑后端时用 127.0.0.1；容器内会被 compose 覆盖成 http://milvus:19530
 MILVUS_URI = os.environ.get("MILVUS_URI", "http://127.0.0.1:19530")
@@ -169,8 +196,8 @@ MINIO_ENDPOINT = os.environ.get("MINIO_ENDPOINT", "127.0.0.1:9004")
 # 外网地址：生成签名 URL 用，必须与浏览器实际访问的 host:port 一致
 MINIO_PUBLIC_ENDPOINT = os.environ.get("MINIO_PUBLIC_ENDPOINT", "127.0.0.1:9004")
 
-MINIO_ACCESS_KEY = os.environ.get("MINIO_ACCESS_KEY", "")
-MINIO_SECRET_KEY = os.environ.get("MINIO_SECRET_KEY", "")
+MINIO_ACCESS_KEY = os.environ.get("MINIO_ACCESS_KEY") or os.environ.get("MINIO_ROOT_USER", "")
+MINIO_SECRET_KEY = os.environ.get("MINIO_SECRET_KEY") or os.environ.get("MINIO_ROOT_PASSWORD", "")
 
 # endpoint 不带协议时用这两个开关；带 http:// / https:// 时以协议为准
 MINIO_SECURE = os.environ.get("MINIO_SECURE", "false").lower() in ("1", "true", "yes", "on")
@@ -213,7 +240,8 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 # API Key 加密密钥：Fernet key（base64 urlsafe，32 字节）。
 # 留空时由 SECRET_KEY 派生（仅开发方便；生产必须显式配置，且更换后旧 Key 无法解密）。
 LLMAPI_ENCRYPTION_KEY = os.environ.get("LLMAPI_ENCRYPTION_KEY", "")
-
+if not LLMAPI_ENCRYPTION_KEY and not DEBUG:
+    raise ImproperlyConfigured("生产环境必须配置 LLMAPI_ENCRYPTION_KEY（Fernet key）")
 # 调用供应商接口超时（秒）
 LLMAPI_HTTP_TIMEOUT = float(os.environ.get("LLMAPI_HTTP_TIMEOUT", "30"))
 
@@ -221,7 +249,9 @@ LLMAPI_HTTP_TIMEOUT = float(os.environ.get("LLMAPI_HTTP_TIMEOUT", "30"))
 LLMAPI_MAX_MODELS = int(os.environ.get("LLMAPI_MAX_MODELS", "1000"))
 
 # 是否允许配置内网/本机 base_url（本地 Ollama 需要 true；生产建议 false 防 SSRF）
-LLMAPI_ALLOW_PRIVATE_BASE_URL = os.environ.get("LLMAPI_ALLOW_PRIVATE_BASE_URL", "true").lower() in (
+LLMAPI_ALLOW_PRIVATE_BASE_URL = os.environ.get(
+    "LLMAPI_ALLOW_PRIVATE_BASE_URL", "false"
+).lower() in (
     "1",
     "true",
     "yes",

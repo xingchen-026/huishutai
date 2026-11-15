@@ -38,7 +38,7 @@ ignore = ["E501"]  # 行宽由 formatter 控制
 
 [tool.ruff.lint.isort]
 known-first-party = [
-    "api", "config", "files", "LLMapi", "RAG", "sqldb", "user", "vectordb",
+    "api", "config", "files", "LLMapi", "RAG", "sqldb", "user", "vectordb","Workflow",
 ]
 
 [tool.ruff.format]
