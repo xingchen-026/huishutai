@@ -29,7 +29,6 @@
 | 自动化测试 | 🚧 部分覆盖 | 后端 358 个用例（7 个 `expectedFailure` 记录已知缺陷）；前端 96 个用例（95 通过 + 1 个 todo）；用户 / 文件 / 向量库仍为占位测试 |
 | 代码质量与 CI | ✅ 已完成 | GitHub Actions 3 个 job（后端 / 前端 / Docker 镜像）、pre-commit、Ruff / ESLint / Prettier |
 | 容器化部署 | ✅ 已完成 | 前端 + 后端 + PostgreSQL + Milvus + 独立 MinIO（文件存储）统一编排 |
-| UI 设计原型 | ✅ 参考产物 | `frontend/prototype/` 为静态 HTML 概念原型，不参与构建、部署与路由 |
 
 ## 功能特性
 
